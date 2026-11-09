@@ -259,7 +259,7 @@ class DeepTranslatorAdapter:
         self._deepl_client = client_class(self.api_key, send_platform_info=False)
         set_app_info = getattr(self._deepl_client, "set_app_info", None)
         if set_app_info:
-            set_app_info("LinguoAI", "2.2.1")
+            set_app_info("LinguoAI", "2.2.2")
         return self._deepl_client
 
     def _deepl_target(self) -> str | None:

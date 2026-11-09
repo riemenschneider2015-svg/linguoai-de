@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "linguoai"
-version = "2.2.1"
+version = "2.2.2"
 description = "Robuste Video-Transkription, Uebersetzung und Sprachsynchronisation"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -15,6 +15,7 @@ dependencies = [
     "edge-tts>=7.2,<8",
     "faster-whisper>=1.1.0,<2",
     "gTTS>=2.5.4,<3",
+    "numpy>=1.26,<3",
 ]
 
 [project.optional-dependencies]

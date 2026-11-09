@@ -6,6 +6,7 @@ import gc
 import math
 import os
 import threading
+import wave
 from collections.abc import Callable, Sequence
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
@@ -217,8 +218,10 @@ class FasterWhisperTranscriber:
     ) -> _ChunkTranscription:
         check_cancelled(cancel_event)
         try:
+            audio = self._read_pcm_chunk(chunk.path)
+            check_cancelled(cancel_event)
             generated_segments, info = self._model.transcribe(
-                str(chunk.path),
+                audio,
                 language=language,
                 beam_size=5,
                 best_of=5,
@@ -258,6 +261,30 @@ class FasterWhisperTranscriber:
             raise
         except Exception as exc:
             raise TranscriptionError(f"Whisper-Fehler in Chunk {chunk.index + 1}: {exc}") from exc
+
+    @staticmethod
+    def _read_pcm_chunk(path: Path) -> Any:
+        """Read the normalized FFmpeg output without decoding it again through PyAV.
+
+        Faster-Whisper accepts 16 kHz float32 waveforms. Passing our PCM samples
+        also avoids the removed ``metadata_errors`` argument in PyAV 19 when an
+        older Faster-Whisper decoder is installed in an existing Colab session.
+        """
+        import numpy as np
+
+        with wave.open(str(path), "rb") as reader:
+            if (
+                reader.getnchannels() != 1
+                or reader.getsampwidth() != 2
+                or reader.getframerate() != 16_000
+                or reader.getcomptype() != "NONE"
+            ):
+                raise TranscriptionError("Whisper erwartet Mono-WAV mit 16 kHz/16 Bit.")
+            frames = reader.getnframes()
+            raw = reader.readframes(frames)
+        if not frames or len(raw) != frames * 2:
+            raise TranscriptionError("Whisper-Audio ist leer oder unvollständig.")
+        return np.frombuffer(raw, dtype="<i2").astype(np.float32) / 32768.0
 
     def _ensure_model(self) -> None:
         if self._model is not None:

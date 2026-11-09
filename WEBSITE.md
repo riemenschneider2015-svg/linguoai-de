@@ -22,7 +22,7 @@ Start ebenfalls über `https://linguoai.de/`.
 - `assets/web-app.css` und `assets/web-app.js`: responsives Studio und `chunks-v1`-Uploads
 - `REMOTE_WORKER.md`: Betriebsübersicht für Upload, Remote-Verarbeitung und private Drive-Ablage
 - `downloads/`: direkt angebotene Projektdateien
-- `downloads/SHA256SUMS-2.2.1.txt`: Prüfsummen der aktuellen Release-Dateien
+- `downloads/SHA256SUMS-2.2.2.txt`: Prüfsummen der aktuellen Release-Dateien
 - `impressum.html` und `datenschutz.html`: noch auszufüllende Entwürfe
 - `404.html`, `robots.txt`, `sitemap.xml`, `site.webmanifest`: Veröffentlichungsdateien
 - `_headers`: optionale Sicherheits-/Cache-Header für Cloudflare Pages und kompatible Hoster

@@ -45,6 +45,8 @@ def test_uvicorn_prefix_strip_proxy_serves_assets_auth_jobs_and_worker(tmp_path,
     public_origin = "https://example.com"
     worker_token = "w" * 48
     website = Path(__file__).resolve().parents[1] / "website"
+    if not website.is_dir():
+        website = website.parent
     settings = ServerSettings(
         state_directory=tmp_path / "state",
         users={"alice": password_hash("proxy-browser-password")},

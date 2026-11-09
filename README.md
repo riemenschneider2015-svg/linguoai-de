@@ -8,8 +8,22 @@ Direkte Einstiege:
 
 - [Projektwebsite mit Download und Anleitung](https://linguoai.de/)
 - [Google-Colab-Anleitung öffnen](https://linguoai.de/colab.html)
-- [Quellcode-ZIP 2.2.1 herunterladen](https://linguoai.de/downloads/LinguoAI-2.2.1-source.zip)
-- [Änderungen in Version 2.2.1](CHANGELOG.md)
+- [Quellcode-ZIP 2.2.2 herunterladen](https://linguoai.de/downloads/LinguoAI-2.2.2-source.zip)
+- [Änderungen in Version 2.2.2](CHANGELOG.md)
+
+## Update auf 2.2.2
+
+Version 2.2.2 behebt einen Faster-Whisper-Fehler mit neueren PyAV-Versionen: Die bereits
+von FFmpeg vorbereiteten Audiodaten gehen direkt an die Spracherkennung.
+
+**In Colab aktualisieren:** Ergebnisse zuerst herunterladen, die alte Sitzung beenden und
+das aktuelle Notebook über die [Colab-Anleitung](https://linguoai.de/colab.html) öffnen.
+Die Startzelle erneut ausführen. Eine bereits laufende Sitzung übernimmt das Update nicht
+automatisch; auch eine alte heruntergeladene Notebook-Datei verwendet noch den alten Download.
+
+Für den Einstieg bleibt Whisper ausgewählt. Parakeet ist optional und benötigt zusätzlich
+das Paket `sherpa-onnx`, einen vollständigen lokalen Modellordner und eine gewählte
+Quellsprache. Die Auswahl allein installiert oder lädt das Modell nicht herunter.
 
 ## So funktioniert es
 
@@ -525,7 +539,7 @@ Das Notebook liegt außerdem unter
    eintragen, den Auftrag starten und die Ergebnisdateien herunterladen oder nach Drive kopieren.
 
 Alternativ kann in der Startzelle `PROJECT_SOURCE = "upload_zip"` gewählt und das
-[Quellcode-ZIP](https://linguoai.de/downloads/LinguoAI-2.2.1-source.zip) ungeöffnet
+[Quellcode-ZIP](https://linguoai.de/downloads/LinguoAI-2.2.2-source.zip) ungeöffnet
 hochgeladen werden. Eine eigene installierbare Git-Quelle kann über `PROJECT_SOURCE = "git"`
 und `GIT_URL` verwendet werden. Beide Wege sind für eigene oder zuvor geänderte Projektfassungen
 nützlich.

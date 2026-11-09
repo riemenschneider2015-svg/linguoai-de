@@ -292,23 +292,7 @@ class AppConfig:
 
         if self.device not in {"auto", "cpu", "cuda"}:
             raise ConfigurationError("Gerät muss 'auto', 'cpu' oder 'cuda' sein.")
-        if self.asr_engine not in ASR_ENGINES:
-            raise ConfigurationError(f"Unbekannte Spracherkennung: {self.asr_engine!r}")
-        if self.parakeet_profile not in PARAKEET_PROFILES:
-            raise ConfigurationError(f"Unbekanntes Parakeet-Profil: {self.parakeet_profile!r}")
-        if not 1 <= self.parakeet_threads <= 32:
-            raise ConfigurationError("Parakeet-CPU-Threads müssen zwischen 1 und 32 liegen.")
-        if self.asr_engine == "parakeet":
-            self.validate_parakeet_language(self.source_language)
-            if self.parakeet_model_directory is None:
-                raise ConfigurationError(
-                    "Parakeet benötigt einen lokalen sherpa-onnx-Modellordner "
-                    "(--parakeet-model-directory)."
-                )
-            if not self.parakeet_model_directory.is_dir():
-                raise ConfigurationError(
-                    f"Parakeet-Modellordner wurde nicht gefunden: {self.parakeet_model_directory}"
-                )
+        self.validate_asr()
         if self.tts_engine not in TTS_ENGINES:
             raise ConfigurationError(f"Unbekannte TTS-Engine: {self.tts_engine!r}")
         if self.tts_device not in TTS_DEVICES:
@@ -377,11 +361,39 @@ class AppConfig:
                 )
         return self
 
+    def validate_asr(self) -> None:
+        """Prüft die ASR-Auswahl vor Dateikopien, ohne Modelle oder Pakete zu laden."""
+        if self.asr_engine not in ASR_ENGINES:
+            raise ConfigurationError(f"Unbekannte Spracherkennung: {self.asr_engine!r}")
+        if self.parakeet_profile not in PARAKEET_PROFILES:
+            raise ConfigurationError(f"Unbekanntes Parakeet-Profil: {self.parakeet_profile!r}")
+        if not 1 <= self.parakeet_threads <= 32:
+            raise ConfigurationError("Parakeet-CPU-Threads müssen zwischen 1 und 32 liegen.")
+        if self.asr_engine != "parakeet":
+            return
+        setup_hint = (
+            "Wähle unter 'Spracherkennung' die Option 'Whisper (direkt starten)' "
+            "(--asr-engine whisper), um ohne Parakeet-Einrichtung fortzufahren. "
+            "Für Parakeet brauchst du einen vorhandenen lokalen sherpa-onnx-Modellordner "
+            "(--parakeet-model-directory) und eine ausdrücklich gewählte Quellsprache."
+        )
+        if self.parakeet_model_directory is None:
+            raise ConfigurationError(
+                "Parakeet ist gewählt, aber der Modellordner fehlt. " + setup_hint
+            )
+        if not self.parakeet_model_directory.is_dir():
+            raise ConfigurationError(
+                f"Parakeet-Modellordner wurde nicht gefunden: {self.parakeet_model_directory}. "
+                + setup_hint
+            )
+        self.validate_parakeet_language(self.source_language)
+
     def validate_parakeet_language(self, language: str | None) -> str:
         if not language or language.casefold() == "auto":
             raise ConfigurationError(
-                "Wähle für Parakeet die Quellsprache ausdrücklich. sherpa-onnx liefert "
-                "für dieses Modell keinen Sprachcode für die anschließende Übersetzung."
+                "Wähle für Parakeet oben unter 'Quellsprache' die Sprache deines Videos "
+                "ausdrücklich aus, zum Beispiel Deutsch. 'Automatisch erkennen' ist hier "
+                "nicht möglich. Alternativ wähle unter 'Spracherkennung' Whisper."
             )
         base = normalize_language_code(language).split("-", maxsplit=1)[0]
         supported = {"de"} if self.parakeet_profile == "german-primeline" else PARAKEET_V3_LANGUAGES

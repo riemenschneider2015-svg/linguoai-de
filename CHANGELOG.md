@@ -1,5 +1,12 @@
 # Änderungsprotokoll
 
+## 2.2.2
+
+- Whisper erhält die bereits normalisierten PCM-Audiodaten direkt. Damit entfällt der fehlerhafte Aufruf von `av.open(..., metadata_errors=...)` mit neueren PyAV-Versionen.
+- Fehlende Parakeet-Modellordner und ungeeignete Quellsprachen werden vor dem Kopieren der Videos geprüft. Die Meldung erklärt den Wechsel zu Whisper oder die nötige Einrichtung.
+- Die Colab-Modellauswahl erklärt, welche Spracherkennung direkt startklar ist und welche einen eigenen Modellordner benötigt.
+- Anleitungen erhalten eine gemeinsame Lesebreite, abgestufte Abstände für Abschnitte und Schritte sowie kompaktere Befehls- und Hilfeblöcke.
+
 ## 2.2.1
 
 - Dynamische Gradio-Freigabe als Standard; benannte Cloudflare-Tunnel optional mit dokumentiertem Start und Deployment.

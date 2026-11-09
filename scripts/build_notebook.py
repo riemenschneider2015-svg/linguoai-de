@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-INTRO = """# LinguoAI 2.2.1 für Google Colab
+INTRO = """# LinguoAI 2.2.2 für Google Colab
 
 Eine Zelle erledigt Installation, Importprüfung und Start. Wähle **Laufzeit → Alle ausführen**.
 Standardmäßig lädt sie das Projekt von linguoai.de und zeigt einen zufälligen, passwortgeschützten

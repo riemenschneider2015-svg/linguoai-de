@@ -22,7 +22,6 @@ from urllib.parse import urlsplit
 from urllib.request import ProxyHandler, build_opener
 
 from .config import (
-    ASR_ENGINES,
     LANGUAGES,
     PARAKEET_PROFILES,
     TTS_DEVICES,
@@ -124,6 +123,23 @@ def resolve_optional_job_file(
     return candidate
 
 
+def _validate_asr_options(
+    source_language: str,
+    asr_engine: str,
+    parakeet_model_directory: str,
+    parakeet_profile: str,
+    parakeet_threads: int,
+) -> None:
+    """Prüft gemeinsame ASR-Optionen, bevor der erste Videojob angelegt wird."""
+    AppConfig(
+        source_language=source_language,
+        asr_engine=asr_engine,
+        parakeet_model_directory=parakeet_model_directory.strip() or None,
+        parakeet_profile=parakeet_profile,
+        parakeet_threads=int(parakeet_threads),
+    ).validate_asr()
+
+
 def process_colab_job(
     uploaded_video: str | None,
     drive_path: str,
@@ -172,6 +188,9 @@ def process_colab_job(
     cancel_event: threading.Event | None = None,
 ) -> tuple[str, list[str]]:
     """Führt genau einen isolierten Colab-Job aus und liefert Downloadpfade."""
+    _validate_asr_options(
+        source_language, asr_engine, parakeet_model_directory, parakeet_profile, parakeet_threads
+    )
     source = resolve_input_video(uploaded_video, drive_path)
     engine = tts_engine.strip().casefold()
     speech_device = tts_device.strip().casefold()
@@ -433,6 +452,9 @@ def process_colab_batch(
     cancel_event: threading.Event | None = None,
 ) -> tuple[str, list[str]]:
     """Verarbeitet mehrere Videos nacheinander und behält erfolgreiche Ergebnisse."""
+    _validate_asr_options(
+        source_language, asr_engine, parakeet_model_directory, parakeet_profile, parakeet_threads
+    )
     sources = _batch_sources(uploaded_videos, drive_paths)
     active_cancel = cancel_event if cancel_event is not None else threading.Event()
     artifacts: list[str] = []
@@ -750,7 +772,12 @@ def build_demo(
         with gr.Accordion("Spracherkennung: optionale Parakeet-CPU-Alternative", open=False):
             with gr.Row():
                 asr_engine = gr.Dropdown(
-                    choices=list(ASR_ENGINES), value="whisper", label="Spracherkennung"
+                    choices=[
+                        ("Whisper (direkt starten)", "whisper"),
+                        ("Parakeet (eigenen Modellordner einrichten)", "parakeet"),
+                    ],
+                    value="whisper",
+                    label="Spracherkennung",
                 )
                 parakeet_profile = gr.Dropdown(
                     choices=list(PARAKEET_PROFILES),
@@ -763,6 +790,9 @@ def build_demo(
             )
             parakeet_threads = gr.Slider(1, 32, value=4, step=1, label="Parakeet-CPU-Threads")
             gr.Markdown(
+                "**Noch keinen Parakeet-Modellordner eingerichtet? Lass 'Whisper (direkt starten)' "
+                "ausgewählt.** Parakeet ist eine zusätzliche Option; die Auswahl allein "
+                "installiert oder lädt kein Modell herunter.\n\n"
                 'Parakeet benötigt `pip install -e ".[parakeet]"` und einen vollständigen '
                 "sherpa-onnx-Export (Encoder, Decoder, Joiner, tokens.txt und ggf. .onnx.data). "
                 "Wähle die Quellsprache oben ausdrücklich aus. NVIDIA V3 unterstützt "

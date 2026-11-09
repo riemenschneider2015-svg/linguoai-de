@@ -1,4 +1,4 @@
-# @title LinguoAI 2.2.1 installieren und starten
+# @title LinguoAI 2.2.2 installieren und starten
 # Quelltext der einzigen Startzelle; Notebook mit build_notebook.py erzeugen.
 import importlib
 import os
@@ -13,7 +13,7 @@ from getpass import getpass
 from pathlib import Path
 
 PROJECT_SOURCE = "download_zip"  # @param ["download_zip", "upload_zip", "git"]
-SOURCE_ZIP_URL = "https://linguoai.de/downloads/LinguoAI-2.2.1-source.zip"  # @param {type:"string"}
+SOURCE_ZIP_URL = "https://linguoai.de/downloads/LinguoAI-2.2.2-source.zip"  # @param {type:"string"}
 GIT_URL = ""  # @param {type:"string"}
 GIT_REF = ""  # @param {type:"string"}
 SHARE_PROVIDER = "gradio"  # @param ["gradio", "cloudflare"]
@@ -87,7 +87,7 @@ def safe_extract_zip(archive_path: Path, destination: Path) -> None:
 
 print("[2/5] LinguoAI-Quellcode laden")
 # Ein frischer Ordner schützt frühere Sitzungen und verhindert vermischte Versionen.
-project_area = Path(tempfile.mkdtemp(prefix="linguoai-2.2.1-", dir="/content"))
+project_area = Path(tempfile.mkdtemp(prefix="linguoai-2.2.2-", dir="/content"))
 archive_path = project_area / "project.zip"
 extraction = project_area / "source"
 if PROJECT_SOURCE == "git":
@@ -107,7 +107,7 @@ if PROJECT_SOURCE == "git":
 elif PROJECT_SOURCE == "download_zip":
     if not SOURCE_ZIP_URL.startswith("https://"):
         raise ValueError("SOURCE_ZIP_URL muss eine HTTPS-Adresse sein.")
-    request = urllib.request.Request(SOURCE_ZIP_URL, headers={"User-Agent": "LinguoAI-Colab/2.2.1"})
+    request = urllib.request.Request(SOURCE_ZIP_URL, headers={"User-Agent": "LinguoAI-Colab/2.2.2"})
     downloaded = 0
     with urllib.request.urlopen(request, timeout=120) as response, archive_path.open("wb") as out:
         if not response.geturl().startswith("https://"):
@@ -123,7 +123,7 @@ elif PROJECT_SOURCE == "download_zip":
 elif PROJECT_SOURCE == "upload_zip":
     from google.colab import files
 
-    print("Bitte LinguoAI-2.2.1-source.zip auswählen.")
+    print("Bitte LinguoAI-2.2.2-source.zip auswählen.")
     uploaded = files.upload()
     archives = [(name, data) for name, data in uploaded.items() if name.lower().endswith(".zip")]
     if len(archives) != 1 or len(archives[0][1]) > MAX_SOURCE_BYTES:
@@ -192,8 +192,8 @@ importlib.invalidate_caches()
 from linguoai import __version__  # noqa: E402
 from linguoai.colab_ui import launch_colab  # noqa: E402
 
-if __version__ != "2.2.1":
-    raise RuntimeError(f"Erwartet LinguoAI 2.2.1, geladen wurde {__version__}.")
+if __version__ != "2.2.2":
+    raise RuntimeError(f"Erwartet LinguoAI 2.2.2, geladen wurde {__version__}.")
 print("LinguoAI", __version__, "ist bereit.")
 print("[5/5] Geschützte Oberfläche starten")
 print("Die Zelle bleibt aktiv. Ergebnisse vor Ende der Colab-Sitzung herunterladen.")

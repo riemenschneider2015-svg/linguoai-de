@@ -23,7 +23,7 @@ from linguoai.colab_ui import (
     resolve_optional_job_file,
 )
 from linguoai.domain import BatchResult, JobResult
-from linguoai.errors import CancelledError
+from linguoai.errors import CancelledError, ConfigurationError
 
 
 class ColabTests(unittest.TestCase):
@@ -350,19 +350,64 @@ class ColabTests(unittest.TestCase):
             process_colab_batch(**self.batch_options(), continue_after_error=False)
         self.assertEqual(job.call_count, 1)
 
+    def test_invalid_parakeet_setup_fails_once_before_batch_jobs(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            model_directory = Path(temporary)
+            cases = [
+                ("", "auto", "Modellordner fehlt.*Whisper.*Quellsprache"),
+                (str(model_directory / "missing"), "de", "nicht gefunden.*Whisper"),
+                (str(model_directory), "auto", "Quellsprache.*Whisper"),
+            ]
+            for directory, language, message in cases:
+                options = {**self.batch_options(), "source_language": language}
+                with (
+                    self.subTest(directory=directory, language=language),
+                    mock.patch("linguoai.colab_ui._batch_sources") as sources,
+                    mock.patch("linguoai.colab_ui.process_colab_job") as job,
+                    self.assertRaisesRegex(ConfigurationError, message) as failure,
+                ):
+                    process_colab_batch(
+                        **options,
+                        asr_engine="parakeet",
+                        parakeet_model_directory=directory,
+                    )
+                sources.assert_not_called()
+                job.assert_not_called()
+                self.assertNotIn("Kein Video konnte verarbeitet werden", str(failure.exception))
+
+    def test_invalid_parakeet_job_fails_before_resolving_or_copying_video(self) -> None:
+        options = self.batch_options()
+        options.pop("uploaded_videos")
+        options.pop("drive_paths")
+        with (
+            mock.patch("linguoai.colab_ui.resolve_input_video") as resolve,
+            mock.patch("linguoai.colab_ui._copy_file_cancellable") as copy,
+            mock.patch("linguoai.colab_ui.VideoDubbingPipeline") as pipeline,
+            self.assertRaisesRegex(ConfigurationError, "Modellordner fehlt.*Whisper"),
+        ):
+            process_colab_job("large-video.mp4", "", **options, asr_engine="parakeet")
+        resolve.assert_not_called()
+        copy.assert_not_called()
+        pipeline.assert_not_called()
+
     def test_batch_passes_optional_parakeet_options_to_each_job(self) -> None:
-        with mock.patch("linguoai.colab_ui.process_colab_job", return_value=("ready", [])) as job:
+        options = {**self.batch_options(), "source_language": "de"}
+        with (
+            tempfile.TemporaryDirectory() as model_directory,
+            mock.patch("linguoai.colab_ui.process_colab_job", return_value=("ready", [])) as job,
+        ):
             process_colab_batch(
-                **self.batch_options(),
+                **options,
                 asr_engine="parakeet",
-                parakeet_model_directory="/content/models/parakeet",
+                parakeet_model_directory=model_directory,
                 parakeet_profile="german-primeline",
                 parakeet_threads=4,
             )
         self.assertEqual(job.call_count, 2)
         for call in job.call_args_list:
+            self.assertEqual(call.args[3], "de")
             self.assertEqual(call.kwargs["asr_engine"], "parakeet")
-            self.assertEqual(call.kwargs["parakeet_model_directory"], "/content/models/parakeet")
+            self.assertEqual(call.kwargs["parakeet_model_directory"], model_directory)
             self.assertEqual(call.kwargs["parakeet_profile"], "german-primeline")
             self.assertEqual(call.kwargs["parakeet_threads"], 4)
 
