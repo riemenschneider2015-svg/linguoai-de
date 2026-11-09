@@ -2,6 +2,7 @@
 
 ## 2.2.2
 
+- Quellcode, Website und Colab verweisen auf `riemenschneider2015-svg/linguoai-de`. Die Website lässt sich mit korrekten Sprach- und Asset-Pfaden über GitHub Pages veröffentlichen; Colab lädt das Release-ZIP direkt aus diesem Repository.
 - Whisper erhält die bereits normalisierten PCM-Audiodaten direkt. Damit entfällt der fehlerhafte Aufruf von `av.open(..., metadata_errors=...)` mit neueren PyAV-Versionen.
 - Fehlende Parakeet-Modellordner und ungeeignete Quellsprachen werden vor dem Kopieren der Videos geprüft. Die Meldung erklärt den Wechsel zu Whisper oder die nötige Einrichtung.
 - Die Colab-Modellauswahl erklärt, welche Spracherkennung direkt startklar ist und welche einen eigenen Modellordner benötigt.

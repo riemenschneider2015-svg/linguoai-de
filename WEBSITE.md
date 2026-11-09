@@ -1,10 +1,11 @@
 # LinguoAI-Website
 
-Statische Produktwebsite für `https://linguoai.de/`.
+Statische Produktwebsite für `https://riemenschneider2015-svg.github.io/linguoai-de/`.
 
-Öffentliche Projektadresse: `https://linguoai.de/`. Website, Colab-Notebook und Downloads werden
-dort direkt über die eigene Domain angeboten. Das Notebook lädt das geprüfte Quellcode-ZIP beim
-Start ebenfalls über `https://linguoai.de/`.
+Öffentliche Projektadresse: `https://riemenschneider2015-svg.github.io/linguoai-de/`. Website, Colab-Notebook und Downloads werden
+dort angeboten. Das Notebook lädt das geprüfte Quellcode-ZIP beim Start direkt aus
+`riemenschneider2015-svg/linguoai-de` auf GitHub. Die bisherige Domain linguoai.de ist noch
+nicht auf dieses Konto umgezogen.
 
 ## Struktur
 
@@ -34,8 +35,8 @@ Sitzungscookie für Login und eigene Aufträge.
 
 ## Video Studio
 
-Die aktuelle Dienstadresse ist
-[Webversion öffnen](https://linguoai.de/web.html).
+Die statische Studio-Oberfläche ist unter
+[Webversion öffnen](https://riemenschneider2015-svg.github.io/linguoai-de/web.html) erreichbar; GitHub Pages betreibt keine API.
 Die Oberfläche lädt Videos in maximal 8 MiB großen Blöcken mit SHA-256 und
 bestätigten Offsets hoch. Vorübergehende Verbindungsfehler werden begrenzt
 wiederholt; der Upload kann in der geöffneten Seite am bestätigten Stand fortsetzen.

@@ -17,7 +17,7 @@ SUPPORTED_LOCALES = ("de", "en", "ru", "uk", "tr", "es", "it")
 LOCALIZED_PAGE_NAMES = ("index.html", "colab.html", "anleitung.html")
 CANONICAL_ORIGIN = "https://linguoai.de"
 COLAB_NOTEBOOK_URL = (
-    "https://colab.research.google.com/github/reinigungsprofileipzig/linguoai-de/"
+    "https://colab.research.google.com/github/riemenschneider2015-svg/linguoai-de/"
     "blob/main/notebooks/LinguoAI_Colab.ipynb"
 )
 
@@ -318,7 +318,9 @@ class WebsiteTests(unittest.TestCase):
         )
         self.assertIn('PROJECT_SOURCE = "download_zip"', source)
         self.assertIn(
-            f'SOURCE_ZIP_URL = "https://linguoai.de/downloads/LinguoAI-{__version__}-source.zip"',
+            'SOURCE_ZIP_URL = "https://raw.githubusercontent.com/'
+            'riemenschneider2015-svg/linguoai-de/main/downloads/'
+            f'LinguoAI-{__version__}-source.zip"',
             source,
         )
         self.assertIn("urllib.request.urlopen(request, timeout=120)", source)

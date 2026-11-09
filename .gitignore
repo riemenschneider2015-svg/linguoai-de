@@ -8,6 +8,7 @@ __pycache__/
 .mypy_cache/
 build/
 dist/
+_site/
 *.partial.*
 *.partial
 *.backup

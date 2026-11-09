@@ -4,12 +4,20 @@ LinguoAI transkribiert Videos, übersetzt die erkannten Cues und erzeugt eine ze
 synchronisierte neue Sprachspur. Desktop-GUI, CLI und Google-Colab-Weboberfläche verwenden
 dieselbe testbare Kernpipeline.
 
+Repository: [riemenschneider2015-svg/linguoai-de](https://github.com/riemenschneider2015-svg/linguoai-de)
+
 Direkte Einstiege:
 
-- [Projektwebsite mit Download und Anleitung](https://linguoai.de/)
-- [Google-Colab-Anleitung öffnen](https://linguoai.de/colab.html)
-- [Quellcode-ZIP 2.2.2 herunterladen](https://linguoai.de/downloads/LinguoAI-2.2.2-source.zip)
+- [Projektwebsite mit Download und Anleitung](https://riemenschneider2015-svg.github.io/linguoai-de/)
+- [Google-Colab-Anleitung öffnen](https://riemenschneider2015-svg.github.io/linguoai-de/colab.html)
+- [Quellcode-ZIP 2.2.2 herunterladen](https://riemenschneider2015-svg.github.io/linguoai-de/downloads/LinguoAI-2.2.2-source.zip)
 - [Änderungen in Version 2.2.2](CHANGELOG.md)
+
+Solange das Repository privat ist, ist die GitHub-Pages-Adresse nicht aktiv. Für Colab dann
+Notebook und Quellcode-ZIP als angemeldeter Repository-Inhaber herunterladen, das Notebook
+in Colab hochladen und vor dem Start `PROJECT_SOURCE = "upload_zip"` wählen. Ein privates
+Repository erlaubt der Colab-Laufzeit keinen anonymen Download. Keine GitHub-Zugangsdaten
+in das Notebook eintragen.
 
 ## Update auf 2.2.2
 
@@ -17,7 +25,7 @@ Version 2.2.2 behebt einen Faster-Whisper-Fehler mit neueren PyAV-Versionen: Die
 von FFmpeg vorbereiteten Audiodaten gehen direkt an die Spracherkennung.
 
 **In Colab aktualisieren:** Ergebnisse zuerst herunterladen, die alte Sitzung beenden und
-das aktuelle Notebook über die [Colab-Anleitung](https://linguoai.de/colab.html) öffnen.
+das aktuelle Notebook über die [Colab-Anleitung](https://riemenschneider2015-svg.github.io/linguoai-de/colab.html) öffnen.
 Die Startzelle erneut ausführen. Eine bereits laufende Sitzung übernimmt das Update nicht
 automatisch; auch eine alte heruntergeladene Notebook-Datei verwendet noch den alten Download.
 
@@ -89,7 +97,7 @@ laufen anschließend durch die gewählten Dienste.
 
 ## Webversion und Google Drive
 
-Die [Webversion öffnen](https://linguoai.de/web.html) ist als eigener
+Die [Webversion öffnen](https://riemenschneider2015-svg.github.io/linguoai-de/web.html) ist als eigener
 Dienst eingerichtet: anmelden, Video hochladen, Zielsprache wählen und das fertige
 Video mit Original- und übersetzten Untertiteln herunterladen. Eine persistente
 SQLite-Warteschlange verwaltet Besitzer, Fortschritt, Abbruch und Worker-Leases.
@@ -518,17 +526,17 @@ Piper und Chatterbox synthetisieren nach dem Modell-Download lokal.
 ## Google Colab mit Weboberfläche
 
 Der einfachste Browserstart beginnt mit der
-[Google-Colab-Anleitung auf linguoai.de](https://linguoai.de/colab.html).
+[Google-Colab-Anleitung](https://riemenschneider2015-svg.github.io/linguoai-de/colab.html).
 Das Notebook liegt außerdem unter
 [`notebooks/LinguoAI_Colab.ipynb`](notebooks/LinguoAI_Colab.ipynb) und kann separat
-[heruntergeladen werden](https://linguoai.de/downloads/LinguoAI_Colab.ipynb).
+[heruntergeladen werden](https://riemenschneider2015-svg.github.io/linguoai-de/downloads/LinguoAI_Colab.ipynb).
 
-1. Das [Colab-Notebook](https://linguoai.de/downloads/LinguoAI_Colab.ipynb) herunterladen.
+1. Das [Colab-Notebook](https://riemenschneider2015-svg.github.io/linguoai-de/downloads/LinguoAI_Colab.ipynb) herunterladen.
 2. [Google Colab](https://colab.research.google.com/) öffnen, anmelden und das Notebook hochladen.
 3. Optional unter **Laufzeit → Laufzeittyp ändern** eine T4-GPU auswählen.
 4. In der einzigen Codezelle die voreingestellte Projektquelle `download_zip` und
    `SHARE_PROVIDER = "gradio"` unverändert lassen. Das Notebook
-   lädt das geprüfte Quellcode-ZIP automatisch von `https://linguoai.de/`.
+   lädt das geprüfte Quellcode-ZIP automatisch aus dem eigenen GitHub-Repository.
 5. Google Drive nur einbinden, wenn Dateien daraus gelesen, Modelle dort gecacht oder
    Ergebnisse dort gespeichert werden sollen.
 6. Für den ersten Test `LOCAL_TTS_EXTRA = "none"` lassen. Edge TTS und gTTS funktionieren
@@ -539,7 +547,7 @@ Das Notebook liegt außerdem unter
    eintragen, den Auftrag starten und die Ergebnisdateien herunterladen oder nach Drive kopieren.
 
 Alternativ kann in der Startzelle `PROJECT_SOURCE = "upload_zip"` gewählt und das
-[Quellcode-ZIP](https://linguoai.de/downloads/LinguoAI-2.2.2-source.zip) ungeöffnet
+[Quellcode-ZIP](https://riemenschneider2015-svg.github.io/linguoai-de/downloads/LinguoAI-2.2.2-source.zip) ungeöffnet
 hochgeladen werden. Eine eigene installierbare Git-Quelle kann über `PROJECT_SOURCE = "git"`
 und `GIT_URL` verwendet werden. Beide Wege sind für eigene oder zuvor geänderte Projektfassungen
 nützlich.

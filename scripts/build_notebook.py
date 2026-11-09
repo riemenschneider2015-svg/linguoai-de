@@ -10,8 +10,13 @@ ROOT = Path(__file__).resolve().parents[1]
 INTRO = """# LinguoAI 2.2.2 für Google Colab
 
 Eine Zelle erledigt Installation, Importprüfung und Start. Wähle **Laufzeit → Alle ausführen**.
-Standardmäßig lädt sie das Projekt von linguoai.de und zeigt einen zufälligen, passwortgeschützten
+Standardmäßig lädt sie das Projekt aus dem GitHub-Repository riemenschneider2015-svg/linguoai-de
+und zeigt einen zufälligen, passwortgeschützten
 Gradio-Link. Eine eigene Domain oder ein Tunnel-Token ist dafür nicht erforderlich.
+
+Bei einem privaten GitHub-Repository zuerst Notebook und Quellcode-ZIP als Inhaber herunterladen.
+Dieses Notebook in Colab hochladen und PROJECT_SOURCE = "upload_zip" wählen. Der normale
+Download benötigt ein öffentliches Repository; keine GitHub-Zugangsdaten in die Zelle schreiben.
 
 Mehrere Videos kannst du nacheinander verarbeiten. Google Drive ist optional; bei Bedarf
 MOUNT_GOOGLE_DRIVE aktivieren. LOCAL_TTS_EXTRA = "none" genügt für Edge TTS und gTTS.

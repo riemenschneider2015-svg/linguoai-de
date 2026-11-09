@@ -13,7 +13,7 @@ from getpass import getpass
 from pathlib import Path
 
 PROJECT_SOURCE = "download_zip"  # @param ["download_zip", "upload_zip", "git"]
-SOURCE_ZIP_URL = "https://linguoai.de/downloads/LinguoAI-2.2.2-source.zip"  # @param {type:"string"}
+SOURCE_ZIP_URL = "https://raw.githubusercontent.com/riemenschneider2015-svg/linguoai-de/main/downloads/LinguoAI-2.2.2-source.zip"  # @param {type:"string"}  # noqa: E501
 GIT_URL = ""  # @param {type:"string"}
 GIT_REF = ""  # @param {type:"string"}
 SHARE_PROVIDER = "gradio"  # @param ["gradio", "cloudflare"]

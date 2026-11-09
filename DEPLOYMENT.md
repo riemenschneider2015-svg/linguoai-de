@@ -1,9 +1,20 @@
-# linguoai.de veröffentlichen
+# LinguoAI aus dem eigenen GitHub-Konto veröffentlichen
 
-Die statische Website wird aus dem Root von
-`reinigungsprofileipzig/linguoai-de`, Branch `main`, über GitHub Pages veröffentlicht.
-Den bestehenden `CNAME` mit `linguoai.de` erhalten. Cloudflare Tunnel ist ausschließlich
-eine optionale Verbindung zur kurzlebigen Colab-App, kein Ersatz für das Website-Hosting.
+Quellcode, Website und Downloads liegen in `riemenschneider2015-svg/linguoai-de`, Branch `main`.
+Die GitHub-Actions-Datei `.github/workflows/pages.yml` veröffentlicht die statische Website unter
+`https://riemenschneider2015-svg.github.io/linguoai-de/`.
+`scripts/build_github_pages.py` passt dafür Links, Sprachwechsel, Assets und Metadaten an den
+Unterpfad an. Die Downloads bleiben bytegenau erhalten. Der alte `CNAME` wird nicht veröffentlicht.
+
+`linguoai.de` ist weiterhin dem bisherigen Repository zugeordnet. Ein Domainumzug benötigt
+Zugriff auf dessen Pages-Einstellungen und gegebenenfalls DNS; das neue Repository übernimmt
+diese Zuordnung nicht automatisch. Cloudflare Tunnel ist ausschließlich eine optionale
+Verbindung zur kurzlebigen Colab-App, kein Ersatz für das Website-Hosting.
+
+Bei privater Sichtbarkeit ist die Pages-Veröffentlichung im Workflow ausgesetzt. Für den
+kostenlosen GitHub-Tarif muss das Repository öffentlich sein, bevor Pages aktiviert wird.
+Danach Pages auf GitHub Actions stellen und den Workflow manuell starten. Bis dahin Colab
+mit heruntergeladenem Notebook und `PROJECT_SOURCE = "upload_zip"` verwenden.
 
 ## Release prüfen und erstellen
 
@@ -38,8 +49,10 @@ Im Hosting-Repository Quellcode, Tests, Skripte und Website gemeinsam committen 
 nach `main` pushen; keine fremde Historie überschreiben und keinen Force-Push verwenden.
 Die Website-Dokumentation heißt dort `WEBSITE.md`, die Projektanleitung `README.md`.
 
-Nach erfolgreichem Pages-Build die tatsächliche Domain prüfen: Startseite und Colab-Seite
+Nach erfolgreichem Pages-Build die neue GitHub-Pages-Adresse prüfen: Startseite und Colab-Seite
 müssen die neue Version zeigen, Notebook und Downloads mit den lokalen Prüfsummen übereinstimmen.
+Das Colab-Notebook lädt das Quellcode-ZIP direkt aus diesem GitHub-Repository; es hängt nicht
+mehr vom alten Website-Hosting ab.
 
 ## Colab: dynamischer Gradio-Link (Standard)
 
