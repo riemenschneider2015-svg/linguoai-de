@@ -22,6 +22,7 @@ from urllib.parse import urlsplit
 from urllib.request import ProxyHandler, build_opener
 
 from .config import (
+    ASR_ENGINES,
     LANGUAGES,
     PARAKEET_PROFILES,
     TTS_DEVICES,
@@ -772,27 +773,22 @@ def build_demo(
         with gr.Accordion("Spracherkennung: optionale Parakeet-CPU-Alternative", open=False):
             with gr.Row():
                 asr_engine = gr.Dropdown(
-                    choices=[
-                        ("Whisper (direkt starten)", "whisper"),
-                        ("Parakeet (eigenen Modellordner einrichten)", "parakeet"),
-                    ],
-                    value="whisper",
-                    label="Spracherkennung",
+                    choices=list(ASR_ENGINES), value="whisper", label="Spracherkennung"
                 )
                 parakeet_profile = gr.Dropdown(
                     choices=list(PARAKEET_PROFILES),
                     value="multilingual-v3",
                     label="Parakeet-Modellprofil",
                 )
-            parakeet_model_directory = gr.Textbox(
-                label="Lokaler Parakeet-Modellordner auf dem Server / in Colab",
-                placeholder="/content/models/sherpa-onnx-nemo-parakeet-tdt-0.6b-v3-int8",
-            )
+            with gr.Row():
+                parakeet_model_directory = gr.Textbox(
+                    label="Lokaler Parakeet-Modellordner auf dem Server / in Colab",
+                    placeholder="/content/models/sherpa-onnx-nemo-parakeet-tdt-0.6b-v3-int8",
+                    scale=4,
+                )
+                parakeet_download_btn = gr.Button("Modell herunterladen 📥", scale=1)
             parakeet_threads = gr.Slider(1, 32, value=4, step=1, label="Parakeet-CPU-Threads")
             gr.Markdown(
-                "**Noch keinen Parakeet-Modellordner eingerichtet? Lass 'Whisper (direkt starten)' "
-                "ausgewählt.** Parakeet ist eine zusätzliche Option; die Auswahl allein "
-                "installiert oder lädt kein Modell herunter.\n\n"
                 'Parakeet benötigt `pip install -e ".[parakeet]"` und einen vollständigen '
                 "sherpa-onnx-Export (Encoder, Decoder, Joiner, tokens.txt und ggf. .onnx.data). "
                 "Wähle die Quellsprache oben ausdrücklich aus. NVIDIA V3 unterstützt "
@@ -1004,6 +1000,37 @@ def build_demo(
                 return "Abbruch angefordert …"
             pipeline.cancel()
             return "Abbruch angefordert …"
+
+        def download_parakeet_action(custom_directory: str, progress: gr.Progress = gr.Progress()) -> str:
+            from .model_downloader import default_parakeet_directory, download_parakeet_model, is_parakeet_model_ready
+
+            entered = custom_directory.strip() if custom_directory else ""
+            dest = (
+                Path(entered).expanduser()
+                if entered
+                else (
+                    Path("/content/models/sherpa-onnx-nemo-parakeet-tdt-0.6b-v3-int8")
+                    if Path("/content").is_dir()
+                    else default_parakeet_directory()
+                )
+            )
+            if is_parakeet_model_ready(dest):
+                gr.Info(f"Parakeet-Modell ist bereits vollständig vorhanden: {dest}")
+                return str(dest)
+
+            def _prog(name: str, frac: float, done: int, total: int) -> None:
+                progress(frac, desc=f"Lade {name} ({done / (1024 * 1024):.1f} MB)…")
+
+            target = download_parakeet_model(dest, progress_callback=_prog)
+            gr.Info(f"Parakeet-Modell erfolgreich heruntergeladen nach: {target}")
+            return str(target)
+
+        parakeet_download_btn.click(
+            download_parakeet_action,
+            inputs=[parakeet_model_directory],
+            outputs=[parakeet_model_directory],
+            **private_event_options,
+        )
 
         cancel_button.click(
             cancel_active_job,

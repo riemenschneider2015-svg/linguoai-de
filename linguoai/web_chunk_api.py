@@ -389,7 +389,7 @@ def install_upload_routes(
     @app.post("/api/uploads", dependencies=[Depends(browser_change)], status_code=201)
     def browser_create(
         data: BrowserUpload,
-        x_upload_request_id: Annotated[str, Header(min_length=1, max_length=80)],
+        x_upload_request_id: str = Header(..., min_length=1, max_length=80),
         username: str = Depends(owner),
     ):
         if not re.fullmatch(r"[A-Za-z0-9_-]+", x_upload_request_id):
@@ -436,8 +436,8 @@ def install_upload_routes(
     async def browser_append(
         upload_id: str,
         request: Request,
-        offset: Annotated[int, Query(ge=0)],
-        x_chunk_sha256: Annotated[str, Header(min_length=64, max_length=64)],
+        offset: int = Query(..., ge=0),
+        x_chunk_sha256: str = Header(..., min_length=64, max_length=64),
         username: str = Depends(owner),
     ):
         row, principal = browser_session(upload_id, username)
@@ -503,8 +503,8 @@ def install_upload_routes(
     def worker_get(
         job_id: str,
         upload_id: str,
-        x_worker_id: Annotated[str, Header()],
-        x_job_lease: Annotated[str, Header()],
+        x_worker_id: str = Header(...),
+        x_job_lease: str = Header(...),
     ):
         row, principal, _fence = worker_session(job_id, upload_id, x_worker_id, x_job_lease)
         return service.public(row, principal)
@@ -514,10 +514,10 @@ def install_upload_routes(
         job_id: str,
         upload_id: str,
         request: Request,
-        offset: Annotated[int, Query(ge=0)],
-        x_chunk_sha256: Annotated[str, Header(min_length=64, max_length=64)],
-        x_worker_id: Annotated[str, Header()],
-        x_job_lease: Annotated[str, Header()],
+        offset: int = Query(..., ge=0),
+        x_chunk_sha256: str = Header(..., min_length=64, max_length=64),
+        x_worker_id: str = Header(...),
+        x_job_lease: str = Header(...),
     ):
         row, principal, fence = worker_session(job_id, upload_id, x_worker_id, x_job_lease)
         return await append(row, principal, request, offset, x_chunk_sha256, fence)
@@ -536,8 +536,8 @@ def install_upload_routes(
     def worker_abort(
         job_id: str,
         upload_id: str,
-        x_worker_id: Annotated[str, Header()],
-        x_job_lease: Annotated[str, Header()],
+        x_worker_id: str = Header(...),
+        x_job_lease: str = Header(...),
     ):
         jobs.verify_lease(job_id, x_worker_id, x_job_lease)
         principal, fence = "worker:" + x_worker_id, lease_fence(x_job_lease)

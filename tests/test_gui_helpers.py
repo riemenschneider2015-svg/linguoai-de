@@ -35,6 +35,12 @@ class GuiHelperTests(unittest.TestCase):
         self.assertTrue(LinguoAIApp._chatterbox_supports_language("zh-CN"))
         self.assertFalse(LinguoAIApp._chatterbox_supports_language("vi"))
 
+    def test_parakeet_model_helpers_available(self) -> None:
+        from linguoai.model_downloader import default_parakeet_directory, is_parakeet_model_ready
+
+        self.assertIsNotNone(default_parakeet_directory())
+        self.assertFalse(is_parakeet_model_ready(Path("/nonexistent/path/for/test")))
+
 
 if __name__ == "__main__":
     unittest.main()

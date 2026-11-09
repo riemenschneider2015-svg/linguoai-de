@@ -165,7 +165,12 @@ class LinguoAIApp:
         self.service = tk.StringVar(value=self._default_service_display())
         self.whisper_model = tk.StringVar(value="small · guter Einstieg")
         self.asr_engine = tk.StringVar(value=next(iter(ASR_ENGINE_DISPLAY)))
-        self.parakeet_model_directory = tk.StringVar()
+        from .model_downloader import default_parakeet_directory, is_parakeet_model_ready
+        default_parakeet = default_parakeet_directory()
+        initial_parakeet = str(default_parakeet) if is_parakeet_model_ready(default_parakeet) else ""
+        self.parakeet_model_directory = tk.StringVar(value=initial_parakeet)
+        self.parakeet_download_status = tk.StringVar(value="")
+        self._parakeet_downloading = False
         self.parakeet_profile = tk.StringVar(value=next(iter(PARAKEET_PROFILE_DISPLAY)))
         self.parakeet_threads = tk.IntVar(value=4)
         self.device = tk.StringVar(value="Automatisch (empfohlen)")
@@ -744,7 +749,7 @@ class LinguoAIApp:
             row=6, column=0, columnspan=2, sticky="w"
         )
         parakeet_row = ttk.Frame(performance)
-        parakeet_row.grid(row=7, column=0, columnspan=2, sticky="ew", pady=(4, 8))
+        parakeet_row.grid(row=7, column=0, columnspan=2, sticky="ew", pady=(4, 4))
         parakeet_row.columnconfigure(0, weight=1)
         parakeet_path = ttk.Entry(parakeet_row, textvariable=self.parakeet_model_directory)
         parakeet_path.grid(row=0, column=0, sticky="ew")
@@ -755,13 +760,24 @@ class LinguoAIApp:
             bootstyle="primary-outline",
         )
         parakeet_browse.grid(row=0, column=1, padx=(7, 0))
+        self.parakeet_download_btn = ttk.Button(
+            parakeet_row,
+            text="Modell herunterladen",
+            command=self._download_parakeet_model,
+            bootstyle="success-outline",
+        )
+        self.parakeet_download_btn.grid(row=0, column=2, padx=(7, 0))
+        self.parakeet_status_label = ttk.Label(
+            performance, textvariable=self.parakeet_download_status, style="Muted.TLabel"
+        )
+        self.parakeet_status_label.grid(row=8, column=0, columnspan=2, sticky="w", pady=(0, 6))
         parakeet_threads = self._form_spinbox(
             performance,
             "Parakeet-CPU-Threads",
             self.parakeet_threads,
             1,
             32,
-            row=8,
+            row=9,
             column=0,
         )
         parakeet_help = ttk.Label(
@@ -779,6 +795,7 @@ class LinguoAIApp:
             (profile_combo, "readonly"),
             (parakeet_path, "normal"),
             (parakeet_browse, "normal"),
+            (self.parakeet_download_btn, "normal"),
             (parakeet_threads, "normal"),
         ):
             self._register(widget, state)
@@ -1360,6 +1377,12 @@ class LinguoAIApp:
         self.optimize.trace_add("write", self._provider_changed)
 
     def _selection_changed(self, *_args: object) -> None:
+        if ASR_ENGINE_DISPLAY.get(self.asr_engine.get()) == "parakeet":
+            if not self.parakeet_model_directory.get().strip():
+                from .model_downloader import default_parakeet_directory, is_parakeet_model_ready
+                def_dir = default_parakeet_directory()
+                if is_parakeet_model_ready(def_dir):
+                    self.parakeet_model_directory.set(str(def_dir))
         self._update_provider_controls()
         self._update_tts_controls()
         self._refresh_summary()
@@ -1479,6 +1502,56 @@ class LinguoAIApp:
         selected = filedialog.askdirectory(title="Parakeet-sherpa-onnx-Modellordner wählen")
         if selected:
             self.parakeet_model_directory.set(selected)
+
+    def _download_parakeet_model(self) -> None:
+        if self._running or self._parakeet_downloading:
+            return
+        from .model_downloader import (
+            default_parakeet_directory,
+            download_parakeet_model,
+            is_parakeet_model_ready,
+        )
+
+        entered = self.parakeet_model_directory.get().strip()
+        target_dir = Path(entered).expanduser() if entered else default_parakeet_directory()
+
+        if is_parakeet_model_ready(target_dir):
+            self.parakeet_model_directory.set(str(target_dir))
+            self.parakeet_download_status.set(f"Modell ist bereits vorhanden: {target_dir.name} ✓")
+            messagebox.showinfo(
+                "Parakeet-Modell",
+                f"Das Parakeet-Modell ist bereits vollständig vorhanden:\n\n{target_dir}",
+            )
+            return
+
+        confirm = messagebox.askyesno(
+            "Parakeet-Modell herunterladen",
+            f"Möchtest du das sherpa-onnx Parakeet v3 Modell (ca. 670 MB) herunterladen nach:\n\n"
+            f"{target_dir}\n\n"
+            "Der Download läuft im Hintergrund und wird automatisch auf Vollständigkeit geprüft.",
+        )
+        if not confirm:
+            return
+
+        self._parakeet_downloading = True
+        self.parakeet_download_btn.configure(state=tk.DISABLED, text="Lädt …")
+        self.parakeet_download_status.set("Download wird vorbereitet …")
+        self._append_log(f"Parakeet-Modell-Download gestartet nach {target_dir} …", "info")
+
+        def _worker() -> None:
+            def _progress(name: str, frac: float, done: int, total: int) -> None:
+                pct = int(frac * 100) if frac else 0
+                mb_done = done / (1024 * 1024)
+                mb_total = total / (1024 * 1024)
+                self._events.put(("parakeet_progress", (name, pct, mb_done, mb_total)))
+
+            try:
+                download_parakeet_model(target_dir, progress_callback=_progress)
+                self._events.put(("parakeet_done", str(target_dir)))
+            except Exception as exc:
+                self._events.put(("parakeet_error", str(exc)))
+
+        threading.Thread(target=_worker, name="linguoai-parakeet-dl", daemon=True).start()
 
     def _select_piper_model(self) -> None:
         if self._running:
@@ -1756,6 +1829,35 @@ class LinguoAIApp:
                 )
                 if not self._closing:
                     messagebox.showerror("Verarbeitung fehlgeschlagen", payload.summary[:900])
+            elif event == "parakeet_progress":
+                name, pct, mb_done, mb_total = payload
+                status_text = f"Lädt {name}: {pct}% ({mb_done:.1f}/{mb_total:.1f} MB)"
+                self.parakeet_download_status.set(status_text)
+                self.parakeet_download_btn.configure(text=f"{pct}%")
+            elif event == "parakeet_done":
+                saved_path = str(payload)
+                self._parakeet_downloading = False
+                self.parakeet_model_directory.set(saved_path)
+                self.parakeet_download_btn.configure(state=tk.NORMAL, text="Modell herunterladen")
+                self.parakeet_download_status.set("Modell vollständig geladen ✓")
+                self._append_log(f"Parakeet-Modell erfolgreich heruntergeladen: {saved_path}", "success")
+                if not self._closing:
+                    messagebox.showinfo(
+                        "Parakeet-Modell geladen",
+                        f"Das Parakeet-Modell wurde erfolgreich heruntergeladen und ausgewählt:\n\n{saved_path}",
+                    )
+                self._selection_changed()
+            elif event == "parakeet_error":
+                err_text = str(payload)
+                self._parakeet_downloading = False
+                self.parakeet_download_btn.configure(state=tk.NORMAL, text="Modell herunterladen")
+                self.parakeet_download_status.set("Download fehlgeschlagen")
+                self._append_log(f"Fehler beim Parakeet-Download: {err_text}", "error")
+                if not self._closing:
+                    messagebox.showerror(
+                        "Download fehlgeschlagen",
+                        f"Das Parakeet-Modell konnte nicht heruntergeladen werden:\n\n{err_text}",
+                    )
 
         if self._closing and not self._running:
             self.root.destroy()
@@ -1998,11 +2100,17 @@ class LinguoAIApp:
             missing.append("FFmpeg")
         if not shutil.which("ffprobe"):
             missing.append("ffprobe")
-        asr_modules = (
-            ("sherpa_onnx", "numpy")
-            if ASR_ENGINE_DISPLAY.get(self.asr_engine.get()) == "parakeet"
-            else ("faster_whisper",)
-        )
+        asr_engine_code = ASR_ENGINE_DISPLAY.get(self.asr_engine.get())
+        if asr_engine_code == "parakeet":
+            asr_modules = ("sherpa_onnx", "numpy")
+            from .model_downloader import is_parakeet_model_ready
+            parakeet_dir_str = self.parakeet_model_directory.get().strip()
+            if not parakeet_dir_str:
+                problems.append("Parakeet-Modell herunterladen oder Ordner wählen")
+            elif not is_parakeet_model_ready(Path(parakeet_dir_str)):
+                problems.append("Parakeet-Modell unvollständig (neu herunterladen)")
+        else:
+            asr_modules = ("faster_whisper",)
         missing.extend(self._missing_modules(asr_modules))
         service_code = SERVICE_DISPLAY.get(self.service.get(), "google")
         if service_code == "nllb":

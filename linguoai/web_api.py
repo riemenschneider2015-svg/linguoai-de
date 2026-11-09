@@ -581,9 +581,9 @@ def create_app(
 
     @app.post("/api/jobs", dependencies=[Depends(browser_change)], status_code=201)
     async def upload_job(
-        file: Annotated[UploadFile, File()],
-        options: Annotated[str, Form()],
         request: Request,
+        file: UploadFile = File(...),
+        options: str = Form(...),
         username: str = Depends(owner),
     ):
         filename = (file.filename or "video.mp4").replace("\\", "/").rsplit("/", 1)[-1]
@@ -706,7 +706,7 @@ def create_app(
 
     @app.get("/api/worker/jobs/{job_id}/input", dependencies=[Depends(worker_auth)])
     async def worker_input(
-        job_id: str, x_worker_id: Annotated[str, Header()], x_job_lease: Annotated[str, Header()]
+        job_id: str, x_worker_id: str = Header(...), x_job_lease: str = Header(...)
     ):
         row = store.verify_lease(job_id, x_worker_id, x_job_lease)
         return await stored_file(row["input_ref"], row["filename"], row["size_bytes"])
@@ -715,9 +715,9 @@ def create_app(
     async def artifact_upload(
         job_id: str,
         name: str,
-        file: Annotated[UploadFile, File()],
-        worker_id: Annotated[str, Form()],
-        lease_token: Annotated[str, Form()],
+        file: UploadFile = File(...),
+        worker_id: str = Form(...),
+        lease_token: str = Form(...),
     ):
         if name not in ARTIFACT_NAMES:
             raise HTTPException(422, "Unbekanntes Ergebnis.")
