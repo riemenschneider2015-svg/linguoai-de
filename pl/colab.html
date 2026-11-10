@@ -1,0 +1,285 @@
+<!doctype html>
+<html class="no-js" data-locale-detect="false" data-locale-page="pl" data-theme="light" lang="pl">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="#f6f7f9" name="theme-color"/>
+<meta content="Otwórz LinguoAI bezpośrednio w Google Colab: uruchom Notebook, przetłumacz wideo i zapisz wyniki. Krótka instrukcja z wymaganiami i alternatywami." name="description"/>
+<meta content="index,follow" name="robots"/>
+<link href="https://linguoai.de/pl/colab.html" rel="canonical"/>
+<link href="https://linguoai.de/colab.html" hreflang="de" rel="alternate"/>
+<link href="https://linguoai.de/en/colab.html" hreflang="en" rel="alternate"/>
+<link href="https://linguoai.de/ru/colab.html" hreflang="ru" rel="alternate"/>
+<link href="https://linguoai.de/uk/colab.html" hreflang="uk" rel="alternate"/>
+<link href="https://linguoai.de/tr/colab.html" hreflang="tr" rel="alternate"/>
+<link href="https://linguoai.de/es/colab.html" hreflang="es" rel="alternate"/>
+<link href="https://linguoai.de/it/colab.html" hreflang="it" rel="alternate"/>
+<link href="https://linguoai.de/fr/colab.html" hreflang="fr" rel="alternate"/>
+<link href="https://linguoai.de/pt/colab.html" hreflang="pt" rel="alternate"/>
+<link href="https://linguoai.de/pl/colab.html" hreflang="pl" rel="alternate"/>
+<link href="https://linguoai.de/nl/colab.html" hreflang="nl" rel="alternate"/>
+<link href="https://linguoai.de/en/colab.html" hreflang="x-default" rel="alternate"/>
+<link href="/assets/favicon.svg" rel="icon" type="image/svg+xml"/>
+<title>Uruchom LinguoAI w Google Colab</title>
+<link href="/assets/simple.css?v=20261023-1" rel="stylesheet"/>
+<link href="/assets/colab-guide.css?v=20261013-1" rel="stylesheet"/>
+<link href="/assets/editorial.css?v=20261110-1" rel="stylesheet"/>
+<link href="/assets/editorial-guides.css?v=20261110-1" rel="stylesheet"/>
+<script>
+      document.documentElement.classList.replace("no-js", "has-js");
+      try {
+        const preferredTheme = window.localStorage.getItem("linguoai-theme");
+        if (preferredTheme === "dark") {
+          document.documentElement.setAttribute("data-theme", "dark");
+        } else {
+          document.documentElement.setAttribute("data-theme", "light");
+        }
+      } catch (_themeError) {}
+      (() => {
+        if (document.documentElement.dataset.localeDetect !== "true") return;
+        if (new URLSearchParams(window.location.search).get("lang") === "de") return;
+        const supported = new Set(["de", "en", "ru", "uk", "tr", "es", "it", "fr", "pt", "pl", "nl"]);
+        const route = {
+          de: "/colab.html",
+          en: "/en/colab.html",
+          ru: "/ru/colab.html",
+          uk: "/uk/colab.html",
+          tr: "/tr/colab.html",
+          es: "/es/colab.html",
+          it: "/it/colab.html", fr: "/fr/colab.html", pt: "/pt/colab.html", pl: "/pl/colab.html", nl: "/nl/colab.html"
+        };
+        let selected = "";
+        try {
+          const saved = window.localStorage.getItem("linguoai.locale") || "";
+          if (supported.has(saved)) selected = saved;
+        } catch (_error) {
+          // Private browsing may block storage; browser detection still works.
+        }
+        if (!selected) {
+          const requested = Array.isArray(navigator.languages) ? navigator.languages : [navigator.language];
+          selected = requested
+            .map((value) => String(value || "").toLowerCase().split("-")[0])
+            .find((value) => supported.has(value)) || "en";
+        }
+        if (selected !== "de") {
+          window.location.replace(`${route[selected]}${window.location.hash}`);
+        }
+      })();
+    </script>
+<script defer="" src="/assets/locale.js?v=20261110-1"></script>
+<script defer="" src="/assets/site.js?v=20261028-1"></script>
+</head>
+<body class="colab-start-page editorial">
+<a class="skip-link" href="#main">Przejdź bezpośrednio do instrukcji</a>
+<header class="site-header" data-header="">
+<div class="container header-inner">
+<a aria-label="Strona główna LinguoAI" class="brand" href="/pl/">
+<img alt="" height="34" src="/assets/logo-mark.svg" width="34"/><span>LinguoAI</span>
+</a>
+<nav aria-label="Główna nawigacja" class="main-navigation" data-menu="" id="main-navigation"><a href="/pl/#ablauf">Oto jak to działa</a><a href="/pl/#versionen">Znajdź wersję</a><a href="/pl/anleitung.html">Instrukcje</a><a href="/web.html">Studio wideo</a></nav>
+<div class="header-tools">
+<button aria-label="Ciemna kolorystyka" aria-pressed="false" class="theme-toggle" data-theme-toggle="" title="Ciemna kolorystyka" type="button">
+<span aria-hidden="true" class="theme-toggle-track">
+<span class="theme-toggle-icon icon-moon">
+<svg fill="none" height="13" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" viewbox="0 0 16 16" width="13"><path d="M13.5 9.5a5.5 5.5 0 1 1-7-7 6.5 6.5 0 0 0 7 7Z"></path></svg>
+</span>
+<span class="theme-toggle-thumb"></span>
+<span class="theme-toggle-icon icon-sun">
+<svg fill="none" height="13" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" viewbox="0 0 16 16" width="13"><circle cx="8" cy="8" r="3"></circle><path d="M8 1.5v1.5m0 10v1.5m-6.5-6.5H3m10 0h1.5m-8.9-3.9 1 1m7.8 7.8 1 1m-9.8 0 1-1m7.8-7.8 1-1"></path></svg>
+</span>
+</span>
+<span class="sr-only">Ciemna kolorystyka</span>
+</button>
+<details class="language-switcher" data-language-switcher="">
+<summary aria-label="Wybierz język">
+<span data-locale-code="">PL</span><span aria-hidden="true">⌄</span>
+</summary>
+<div class="language-options" data-i18n-ignore="">
+<a data-locale-link="de" href="/colab.html" hreflang="de" lang="de">Deutsch</a>
+<a data-locale-link="en" href="/en/colab.html" hreflang="en" lang="en">English</a>
+<a data-locale-link="ru" href="/ru/colab.html" hreflang="ru" lang="ru">Русский</a>
+<a data-locale-link="uk" href="/uk/colab.html" hreflang="uk" lang="uk">Українська</a>
+<a data-locale-link="tr" href="/tr/colab.html" hreflang="tr" lang="tr">Türkçe</a>
+<a data-locale-link="es" href="/es/colab.html" hreflang="es" lang="es">Español</a>
+<a data-locale-link="it" href="/it/colab.html" hreflang="it" lang="it">Italiano</a>
+<a data-locale-link="fr" href="/fr/colab.html" hreflang="fr" lang="fr">Français</a>
+<a data-locale-link="pt" href="/pt/colab.html" hreflang="pt" lang="pt">Português</a>
+<a aria-current="page" data-locale-link="pl" href="/pl/colab.html" hreflang="pl" lang="pl">Polski</a>
+<a data-locale-link="nl" href="/nl/colab.html" hreflang="nl" lang="nl">Nederlands</a>
+</div>
+</details>
+<a class="button button-small" href="/pl/#versionen">Znajdź wersję <span aria-hidden="true">→</span></a>
+<button aria-controls="main-navigation" aria-expanded="false" class="menu-button" data-menu-button="" type="button">
+<span class="sr-only">Otwórz nawigację</span><span aria-hidden="true"></span><span aria-hidden="true"></span>
+</button>
+</div>
+</div>
+</header>
+<main class="colab-start-main" id="main">
+<section class="container colab-start-hero">
+<div>
+<p class="section-kicker">Bez instalacji na komputerze</p>
+<h1>Twój pierwszy film z Google Colab.</h1>
+<p class="colab-start-intro">Otwierasz przygotowaną stronę główną, uruchamiasz LinguoAI i przesyłasz swój film. Ta strona główna nosi nazwę „Notebook” w Google. Nie musisz pisać żadnego kodu.</p>
+<div class="colab-start-actions">
+<a class="button" data-colab-start="" href="https://colab.research.google.com/github/riemenschneider2015-svg/linguoai-de/blob/main/notebooks/LinguoAI_Colab.ipynb" rel="noopener noreferrer" target="_blank">Zacznij od Google Colab <span aria-hidden="true">↗</span></a>
+</div>
+<p class="colab-start-note">Pozostaw te instrukcje otwarte obok. Konfiguracja i wstępne tłumaczenie mogą zająć kilka minut.</p>
+</div>
+<aside aria-label="Szybki przegląd" class="colab-start-summary">
+<span class="panel-label">Przygotuj te trzy rzeczy</span>
+<ul>
+<li>swoje konto Google</li>
+<li>krótki film mówiony, około 10-30 sekund</li>
+<li>połączenie internetowe</li>
+</ul>
+<p>Aby rozpocząć, nie potrzebujesz Google Drive ani specjalnej karty graficznej.</p>
+</aside>
+</section>
+<aside aria-labelledby="policy-title" class="container colab-policy">
+<h2 id="policy-title">Zanim zaczniesz: Colab może kosztować</h2>
+<p>Do obsługi interfejsu internetowego LinguoAI firma Google wymaga płatnej taryfy z dodatnim kredytem obliczeniowym. Czas działania i wydajność pozostają ograniczone.</p>
+<div class="colab-policy-links">
+<a class="text-link" href="https://research.google.com/colaboratory/faq.html" rel="noopener noreferrer" target="_blank">Przeczytaj warunki Colab <span aria-hidden="true">↗</span></a>
+<a class="text-link" href="/pl/anleitung.html#desktop">Alternatywnie zainstaluj lokalnie <span aria-hidden="true">→</span></a>
+</div>
+</aside>
+<section aria-labelledby="guide-title" class="container colab-start-guide">
+<div class="colab-start-heading">
+<p class="section-kicker">Krok po kroku</p>
+<h2 id="guide-title">Pięć kroków do gotowego filmu.</h2>
+</div>
+<ol class="colab-start-steps beginner-steps">
+<li>
+<div class="step-card-header"><span class="step-pill" data-i18n-ignore=""><span class="step-dot"></span>01</span><span aria-hidden="true" class="step-watermark">01</span></div>
+<div><h3>Otwórz stronę główną</h3>
+<p>Kliknij „Rozpocznij w Google Colab” powyżej i zaloguj się do Google.</p>
+<p class="step-result"><strong>Widzisz:</strong> stronę z tytułem „LinguoAI” i przyciskiem start ▶ obok przygotowanego programu.</p></div>
+</li>
+<li>
+<div class="step-card-header"><span class="step-pill" data-i18n-ignore=""><span class="step-dot"></span>02</span><span aria-hidden="true" class="step-watermark">02</span></div>
+<div><h3>Kliknij raz ▶ i poczekaj</h3>
+<p>Kliknij przycisk Start po lewej stronie programu. Pozostaw wszystkie ustawienia bez zmian. Jeśli Colab zapyta, potwierdź uruchomienie tego LinguoAI-Notebook.</p>
+<p class="step-result"><strong>Widzisz:</strong> w takim razie najpierw komunikaty instalacyjne <span data-i18n-ignore="">„LinguoAI-Anmeldung“</span> z użytkownikiem i hasłem <span data-i18n-ignore="">„Dynamischer Gradio-Link“</span>. Komórka nadal działa – to prawda.</p></div>
+</li>
+<li>
+<div class="step-card-header"><span class="step-pill" data-i18n-ignore=""><span class="step-dot"></span>03</span><span aria-hidden="true" class="step-watermark">03</span></div>
+<div><h3>Otwórz LinguoAI i zaloguj się</h3>
+<p>Otwórz adres z tyłu <span data-i18n-ignore="">„Dynamischer Gradio-Link“</span>. Noś jako użytkownik <code>linguoai</code> i skopiuj hasło ze strony głównej. Twoje hasło Google nie jest tutaj potrzebne.</p>
+<p class="step-result"><strong>Widzisz:</strong> stronę LinguoAI z polem do przesyłania filmów. Pozostaw także otwartą kartę Colab.</p></div>
+</li>
+<li>
+<div class="step-card-header"><span class="step-pill" data-i18n-ignore=""><span class="step-dot"></span>04</span><span aria-hidden="true" class="step-watermark">04</span></div>
+<div><h3>Wybierz i przetłumacz wideo</h3>
+<p>Pobierz poniżej film testowy <span data-i18n-ignore="">„Videos direkt hochladen“</span> wysoki. Wybierz ten, który chcesz <span data-i18n-ignore="">„Zielsprache“</span> i o godz <span data-i18n-ignore="">„Übersetzung“</span> opcja <span data-i18n-ignore="">„Google Translate“</span>. Resztę pozostaw bez zmian i kliknij <span data-i18n-ignore="">„Batch verarbeiten“</span>. Spowoduje to również rozpoczęcie pojedynczego filmu.</p>
+<p class="step-result"><strong>Widzisz:</strong> postęp w tej dziedzinie <span data-i18n-ignore="">„Status“</span>. W przypadku pierwszego filmu ładowane są także modele językowe. Czekam na pliki wynikowe.</p></div>
+</li>
+<li>
+<div class="step-card-header"><span class="step-pill" data-i18n-ignore=""><span class="step-dot"></span>05</span><span aria-hidden="true" class="step-watermark">05</span></div>
+<div><h3>Zapisz gotowy film</h3>
+<p>Pobierz poniżej <span data-i18n-ignore="">„Ergebnisse herunterladen“</span> nowy film i oba pliki napisów na swój komputer. Otwórz wideo i posłuchaj przez chwilę.</p>
+<p class="step-result"><strong>Gotowe:</strong> Pliki znajdują się na Twoim komputerze. Dopiero teraz możesz zakończyć sesję Colab. Niezabezpieczone pliki mogą wówczas zostać utracone.</p></div>
+</li>
+</ol>
+</section>
+<section class="container colab-start-details">
+<article>
+<span class="service-badge"><span aria-hidden="true" class="badge-dot"></span>TWÓJ WYNIK</span>
+<h2>Wideo i napisy.</h2>
+<p>Nowa ścieżka głosowa całkowicie zastępuje poprzedni dźwięk, w tym muzykę i hałas w tle. Ruchy warg na obrazie nie są dostosowane. Wiele osób nie otrzymuje automatycznie różnych głosów.</p>
+</article>
+<article>
+<span class="service-badge"><span aria-hidden="true" class="badge-dot"></span>TWOJE DANE</span>
+<h2>Co jest przetwarzane online.</h2>
+<p>Twój film zostanie przetworzony w Google Colab. Po rozpoczęciu zgodnie z ilustracją Google Translate i usługa głosowania online otrzymają wymagane SMS-y. Korzystaj wyłącznie z filmów i głosów, do których masz niezbędne uprawnienia.</p>
+</article>
+</section>
+<section aria-labelledby="help-title" class="container colab-help">
+<h2 id="help-title">Pomóż, jeśli utkniesz.</h2>
+<details>
+<summary>Nie pojawia się jeszcze żaden link</summary>
+<p>Przewiń w dół do dolnej części programu. Dopóki pojawiają się nowe komunikaty instalacyjne, Colab nadal działa. Nie klikaj ponownie przycisku Start: jest to przycisk zatrzymania podczas wykonywania.</p>
+<p>Jeśli na końcu znajduje się komunikat o błędzie, przeczytaj ostatnie wiersze. Jeśli Colab zgłasza brak środków lub limit wykorzystania, sprawdź swoją taryfę. Ponowne uruchomienie nie usuwa tych ograniczeń.</p>
+</details>
+<details>
+<summary>Hasło nie działa</summary>
+<p>Skorzystaj z użytkownika <code>linguoai</code> i hasło z tyłu <code>Passwort=</code> z aktualnej strony głównej, bez dodatkowych spacji. Przy każdym ponownym uruchomieniu generowane jest nowe hasło.</p>
+</details>
+<details>
+<summary>Link już nie działa lub sesja została zakończona</summary>
+<p>Link działa tylko tak długo, jak długo działa sesja Colab. Uruchom program ponownie i użyj nowego łącza z nowym hasłem. W razie potrzeby prześlij film ponownie. Wyniki, które nie zostaną pobrane, mogą zostać utracone.</p>
+</details>
+<details>
+<summary>Bezpośrednie łącze Notebook nie działa</summary>
+<p>Pobierz poniższy plik Notebook. Otwórz Google Colab i wybierz „Plik → Otwórz Notebook → Prześlij”. Wybierz pobrany plik i przejdź do kroku 2.</p>
+<a class="text-link" download="" href="https://linguoai.de/downloads/LinguoAI_Colab.ipynb">Pobierz Notebook <span aria-hidden="true">↓</span></a>
+</details>
+<details>
+<summary>Użyj wielu filmów lub Google Drive</summary>
+<p>Możesz przesłać wiele filmów jednocześnie. LinguoAI przetwarza je jeden po drugim.</p>
+<p>W przypadku Google Drive aktywuj przed rozpoczęciem w Notebook <code>MOUNT_GOOGLE_DRIVE</code> i potwierdź zgodę Google. Potem możesz <span data-i18n-ignore="">„Alternativ: MyDrive-Pfade, ein Video pro Zeile“</span> Wprowadź ścieżki plików względem MyDrive. Z <span data-i18n-ignore="">„Ergebnisse in MyDrive kopieren“</span> Wyniki zapisujesz także na Dysku.</p>
+<p>Gradio domyślnie pozwala na maksymalnie 5 GB na plik. W przypadku dużych filmów alternatywą jest Google Drive; dostępny czas działania i pamięć pozostają ograniczone.</p>
+</details>
+<details>
+<summary>Opcje zaawansowane: Głosy i Cloudflare</summary>
+<p>Do standardowego startu nie potrzebujesz własnej domeny ani tokena tunelowego. Lokalne głosy i własny tunel Cloudflare to dodatkowe opcje.</p>
+<div class="colab-policy-links">
+<a class="text-link" href="/pl/anleitung.html#stimmen">Skonfiguruj głosy <span aria-hidden="true">→</span></a>
+<a class="text-link" href="/pl/anleitung.html#cloudflare">Skonfiguruj Cloudflare <span aria-hidden="true">→</span></a>
+</div>
+</details>
+<a class="text-link colab-local-link" href="/pl/anleitung.html#desktop">Wolisz pracować lokalnie? Do instalacji <span aria-hidden="true">→</span></a>
+</section>
+</main>
+<footer class="site-footer">
+<div class="container footer-main">
+<div class="footer-brand">
+<a class="brand" href="/pl/">
+<img alt="" height="34" src="/assets/logo-mark.svg" width="34"/><span>LinguoAI</span>
+</a>
+<p>Tłumaczenie, ponowne dubbingowanie i dodawanie napisów do filmów.</p>
+</div>
+<div class="footer-links">
+<div>
+<strong>Zacznij</strong>
+<a href="/pl/">Do strony głównej</a>
+<a href="/pl/#versionen">Znajdź wersję</a>
+<a href="/pl/colab.html">Instrukcje Colab</a>
+<a href="/pl/anleitung.html#desktop">Zainstaluj lokalnie</a>
+<a href="/web.html">Studio wideo</a>
+<a href="/pl/#downloads">Pliki do pobrania</a>
+</div>
+<div>
+<strong>Dowiedz się więcej</strong>
+<a href="/pl/anleitung.html">Szczegółowe instrukcje</a>
+<a href="/pl/#fragen">Pomoc</a>
+<a href="https://github.com/riemenschneider2015-svg/linguoai-de">GitPiasta</a>
+</div>
+<div>
+<strong>Legalne</strong>
+<a href="/impressum.html">Odcisk</a>
+<a href="/datenschutz.html">Ochrona danych</a>
+<a href="/drive-datenschutz.html">Ochrona danych połączenia napędu</a>
+</div>
+</div>
+</div>
+<div class="container footer-bottom">
+<span>© <span data-current-year="">2026</span> LinguoAI</span>
+<span>Bez trackera. Bez zewnętrznych czcionek internetowych.</span>
+<div class="footer-locales" data-i18n-ignore="">
+<a href="/pl/" hreflang="de" lang="de">DE</a> ·
+          <a href="/en/" hreflang="en" lang="en">EN</a> ·
+          <a href="/ru/" hreflang="ru" lang="ru">RU</a> ·
+          <a href="/uk/" hreflang="uk" lang="uk">UK</a> ·
+          <a href="/tr/" hreflang="tr" lang="tr">TR</a> ·
+          <a href="/es/" hreflang="es" lang="es">ES</a> ·
+          <a href="/it/" hreflang="it" lang="it">IT</a>
+<a href="/fr/" hreflang="fr" lang="fr">FR</a>
+<a href="/pt/" hreflang="pt" lang="pt">PT</a>
+<a href="/pl/" hreflang="pl" lang="pl">PL</a>
+<a href="/nl/" hreflang="nl" lang="nl">NL</a>
+</div>
+</div>
+</footer>
+</body>
+</html>

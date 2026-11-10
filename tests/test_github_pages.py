@@ -68,7 +68,7 @@ class GitHubPagesTests(unittest.TestCase):
                     canonical = document.select_one('link[rel="canonical"]')["href"]
                     expected = page_url.removesuffix("index.html")
                     self.assertEqual(canonical, expected)
-                    self.assertEqual(len(document.select("[data-locale-link]")), 7)
+                    self.assertEqual(len(document.select("[data-locale-link]")), len(LOCALES))
                     for link in document.select("[data-colab-start]"):
                         self.assertEqual(link["href"], COLAB_URL)
 
@@ -160,7 +160,7 @@ for (const script of [input.locale, input.site, input.studio, ...Object.values(i
   new vm.Script(script);
 }
 for (const [page, script] of Object.entries(input.redirects)) {
-  for (const language of ['en', 'ru', 'uk', 'tr', 'es', 'it']) {
+  for (const language of ['en', 'ru', 'uk', 'tr', 'es', 'it', 'fr', 'pt', 'pl', 'nl']) {
     let redirected;
     const context = {
       document: {documentElement: {

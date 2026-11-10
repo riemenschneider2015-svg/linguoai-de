@@ -4,7 +4,7 @@
 [data-theme="dark"] .web-site { --studio-error: #ffb5ad; --studio-error-bg: #3b2326; --studio-warning: #f3d48c; --studio-warning-bg: #332e21; }
 .web-icon { display: block; width: 24px; height: 24px; flex: 0 0 auto; }
 .web-brand-context { margin-left: .3rem; padding-left: .8rem; border-left: 1px solid var(--line); color: var(--muted); font-size: .75rem; font-weight: 500; letter-spacing: 0; }
-.web-main { max-width: 1200px; padding-block: clamp(2.5rem, 6vw, 5rem) clamp(4rem, 7vw, 6rem); }
+.web-main { max-width: 1200px; padding-block: clamp(1.25rem, 3vw, 2rem) 2.5rem; }
 .web-intro { max-width: 850px; margin-bottom: 2.5rem; }
 .web-intro .eyebrow { display: flex; align-items: center; flex-wrap: wrap; gap: .75rem; }
 .web-preview-label { padding: .25rem .5rem; border: 1px solid var(--line); border-radius: 4px; color: var(--muted); font-size: .7rem; font-weight: 600; letter-spacing: 0; }
@@ -25,19 +25,19 @@
 .web-notice[data-kind="warning"] { color: var(--studio-warning); background: var(--studio-warning-bg); border-color: currentColor; }
 .web-notice[data-kind="error"] { color: var(--studio-error); background: var(--studio-error-bg); border-color: currentColor; }
 .web-notice #connection-message { min-width: 0; overflow-wrap: anywhere; }
-.web-card { min-width: 0; padding: clamp(1.4rem, 3vw, 2.5rem); border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.web-card { min-width: 0; padding: clamp(1rem, 2vw, 1.5rem); border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
 .web-card h2 { margin: .4rem 0 0; font-size: clamp(1.45rem, 2.3vw, 1.85rem); letter-spacing: -.035em; line-height: 1.2; font-weight: 700; }
 .web-card-heading { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.75rem; }
 .web-badge { display: inline-flex; padding: .3rem .65rem; border: 1px solid var(--line); border-radius: 5px; color: var(--muted); background: var(--paper); font-size: .72rem; font-weight: 600; }
 .web-login { display: grid; grid-template-columns: 1fr 1fr; padding: 0; overflow: hidden; }
-.web-login-copy { padding: clamp(1.5rem, 4vw, 3rem); background: var(--brand-soft); }
+.web-login-copy { padding: clamp(1rem, 2.5vw, 1.75rem); background: var(--brand-soft); }
 .web-login-symbol { display: grid; place-items: center; width: 48px; height: 48px; margin-bottom: 1.75rem; color: var(--brand); border: 1px solid var(--brand); border-radius: 10px; }
 .web-login-symbol .web-icon { width: 26px; height: 26px; }
 .web-login-copy > p:not(.section-kicker) { max-width: 37ch; margin-top: 1rem; color: var(--muted); font-size: .96rem; line-height: 1.7; }
 .web-login-benefits { display: grid; gap: 1rem; padding: 0; margin: 2rem 0 0; list-style: none; color: var(--ink); font-size: .88rem; }
 .web-login-benefits li { display: flex; align-items: center; gap: .8rem; }
 .web-login-benefits .web-icon { width: 22px; height: 22px; color: var(--brand); }
-.web-login form { display: flex; flex-direction: column; justify-content: center; gap: 1.15rem; padding: clamp(1.5rem, 4vw, 3rem); min-width: 0; }
+.web-login form { display: flex; flex-direction: column; justify-content: center; gap: 1.15rem; padding: clamp(1rem, 2.5vw, 1.75rem); min-width: 0; }
 .web-form-intro { font-weight: 650; font-size: 1rem; color: var(--ink); }
 .web-login-note { color: var(--muted); font-size: .82rem; line-height: 1.65; }
 .web-workspace { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, .85fr); gap: 1.5rem; align-items: start; }

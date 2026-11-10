@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const supported = new Set(["de", "en", "ru", "uk", "tr", "es", "it"]);
+  const supported = new Set(["de", "en", "ru", "uk", "tr", "es", "it", "fr", "pt", "pl", "nl"]);
   const locale = document.documentElement.dataset.localePage || "de";
 
   // Carry an explicit German choice through guides even if storage is blocked.

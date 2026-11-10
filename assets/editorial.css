@@ -44,7 +44,7 @@ body.editorial{margin:0;background:var(--paper);color:var(--ink);font:16px/1.65 
 .editorial .language-switcher{position:relative;margin:0;border:0;padding:0}
 .editorial .language-switcher summary{display:flex;align-items:center;gap:.4rem;list-style:none;cursor:pointer;min-height:44px;padding:.4rem .5rem;color:var(--ink);font-size:.8rem;font-weight:700}
 .editorial .language-switcher summary::-webkit-details-marker{display:none}
-.editorial .language-options{position:absolute;right:0;top:calc(100% + .5rem);width:185px;padding:.4rem;background:var(--surface);border:1px solid var(--line);border-radius:8px;box-shadow:0 12px 32px #111a2312}
+.editorial .language-options{position:absolute;right:0;top:calc(100% + .5rem);width:min(220px,80vw);max-height:min(65dvh,26rem);overflow-y:auto;padding:.35rem;background:var(--surface);border:1px solid var(--line);border-radius:8px;box-shadow:0 12px 32px #111a2312}
 .editorial .language-options a{display:block;min-height:42px;padding:.5rem .75rem;border-radius:4px;color:var(--ink);text-decoration:none;font-size:.85rem}
 .editorial .language-options a:hover,.editorial .language-options [aria-current]{background:var(--brand-soft)}
 .editorial .menu-button{display:none;width:44px;height:44px;border:1px solid var(--line);border-radius:6px;background:var(--surface);padding:11px;cursor:pointer}
@@ -82,26 +82,26 @@ body.editorial{margin:0;background:var(--paper);color:var(--ink);font:16px/1.65 
 .editorial .sample-languages input:checked+span{color:var(--brand);background:var(--brand-soft);border-color:var(--brand)}
 .editorial .sample-languages input:focus-visible+span,.editorial .version-options input:focus-visible+span{outline:3px solid var(--brand);outline-offset:3px}
 .editorial .translation-preview figcaption{font-size:.59rem;line-height:1.5;color:var(--muted);padding:.55rem .5rem .1rem}
-.editorial .simple-section{padding-block:5rem;border-top:1px solid var(--line);background:var(--paper)}
+.editorial .simple-section{padding-block:2.5rem;border-top:1px solid var(--line);background:var(--paper)}
 .editorial .simple-heading{max-width:none;margin-bottom:2.75rem}.editorial .simple-heading h2{margin-top:.6rem;max-width:24ch}
 .editorial .simple-heading>p:last-child:not(.section-kicker){max-width:58ch;margin-top:.9rem}
 .editorial .split-heading{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:4rem;align-items:end}
 .editorial .split-heading>p{max-width:42ch}
-.editorial .simple-benefits{padding-block:3.5rem 4rem;background:var(--surface)}
+.editorial .simple-benefits{padding-block:2rem 2.5rem;background:var(--surface)}
 .editorial .outcome-composition{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3rem}
 .editorial .outcome-card{padding:1.5rem 0 1rem;border:0;border-top:1px solid var(--line);background:none;border-radius:0;box-shadow:none}
 .editorial .outcome-card>.pictogram{width:30px;height:30px;color:var(--brand);margin-bottom:1.5rem}
 .editorial .outcome-card h3{margin-bottom:.7rem}.editorial .outcome-card p{font-size:.9rem;line-height:1.75;max-width:37ch}
 .editorial .simple-honest-note{display:flex;align-items:flex-start;gap:.75rem;padding:1.2rem 0 0;margin-top:1.75rem;border-top:1px solid var(--line);font-size:.78rem;max-width:none;background:none}
 .editorial .simple-honest-note svg{width:18px;height:18px;margin-top:.2rem}
-.editorial .version-section{padding-block:4.5rem 5rem;background:var(--paper)}
+.editorial .version-section{padding-block:2rem 2.5rem;background:var(--paper)}
 .editorial .version-filter{margin:0 0 1.75rem;padding:0;border:0;min-width:0}
 .editorial .version-filter legend{font-size:.82rem;font-weight:650;margin-bottom:.75rem}
 .editorial .version-options{display:flex;flex-wrap:wrap;gap:.5rem}
 .editorial .version-options span{display:flex;align-items:center;min-height:46px;padding:.65rem 1rem;border:1px solid var(--line-strong);border-radius:6px;background:var(--surface);color:var(--muted);font-size:.78rem;font-weight:600;line-height:1.5}
 .editorial .version-options span:hover{border-color:var(--brand)}
 .editorial .version-options input:checked+span{color:var(--brand);border-color:var(--brand);background:var(--brand-soft)}
-.editorial .version-grid,.editorial #versionen{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem;scroll-margin-top:100px}
+.editorial .version-grid,.editorial #versionen{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem;scroll-margin-top:.5rem}
 .editorial .version-card,.editorial .version-card.is-selected{position:relative;display:flex;flex-direction:column;min-width:0;padding:1.75rem;border:1px solid var(--line);border-radius:9px;background:var(--surface);box-shadow:none;transform:none}
 .editorial .version-card.is-primary{border-top:3px solid var(--brand);padding-top:calc(1.75rem - 2px)}
 .editorial .version-card-top{display:flex;align-items:center;justify-content:space-between;gap:1rem;min-height:32px;margin-bottom:1.25rem}
@@ -120,10 +120,10 @@ body.editorial{margin:0;background:var(--paper);color:var(--ink);font:16px/1.65 
 .editorial .version-card.is-selected .version-card-top,.editorial .version-card.is-selected h3,.editorial .version-card.is-selected .version-description{grid-column:1}
 .editorial .version-card.is-selected .version-facts{grid-column:2;grid-row:1 / span 4;margin:0}
 .editorial .version-card.is-selected .version-card-actions{grid-column:1}
-.editorial .simple-workflow{padding-block:3.5rem 4rem;background:var(--surface)}
+.editorial .simple-workflow{padding-block:2rem 2.5rem;background:var(--surface)}
 .editorial .simple-benefits .simple-heading,.editorial .simple-workflow .simple-heading{margin-bottom:2rem}
-.editorial #downloads{padding-block:4.5rem}
-.editorial .simple-faq{padding-block:3.5rem 4.5rem}
+.editorial #downloads{padding-block:2rem}
+.editorial .simple-faq{padding-block:2rem 2.5rem}
 .editorial .simple-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3rem;list-style:none;margin:0 0 2rem;padding:0}
 .editorial .simple-steps li{display:block;min-width:0;padding:0;border:0;border-radius:0;background:none;box-shadow:none}
 .editorial .step-card-header{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:0 0 1.35rem;margin-bottom:1.35rem;border-bottom:1px solid var(--line);color:var(--brand)}
@@ -141,18 +141,18 @@ body.editorial{margin:0;background:var(--paper);color:var(--ink);font:16px/1.65 
 .editorial .simple-faq h2{margin:.7rem 0 1rem}.editorial .simple-faq-grid>div>p:not(.section-kicker){font-size:.88rem;max-width:35ch}
 .editorial .faq-list{border-top:1px solid var(--line)}
 .editorial .faq-list details{padding:0;border:0;border-bottom:1px solid var(--line);border-radius:0;background:none;box-shadow:none;margin:0}
-.editorial .faq-list summary{display:flex;align-items:center;justify-content:space-between;gap:1.5rem;min-height:75px;padding:1.3rem 0;list-style:none;font-size:.9rem;font-weight:650;line-height:1.5;color:var(--ink);cursor:pointer}
+.editorial .faq-list summary{display:flex;align-items:center;justify-content:space-between;gap:1.5rem;min-height:52px;padding:.75rem 0;list-style:none;font-size:.9rem;font-weight:650;line-height:1.5;color:var(--ink);cursor:pointer}
 .editorial .faq-list summary::-webkit-details-marker{display:none}.editorial .faq-list summary>span{font-size:1.3rem;color:var(--brand);flex-shrink:0}
 .editorial .faq-list details[open] summary>span{transform:rotate(45deg)}.editorial .faq-list details>p{font-size:.84rem;margin:0 0 1.2rem;padding:0;line-height:1.8}
 .editorial .site-footer{padding:0;background:var(--paper);border-top:1px solid var(--line);color:var(--muted)}
-.editorial .footer-main{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.4fr);gap:4rem;padding-block:3rem}
+.editorial .footer-main{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.4fr);gap:4rem;padding-block:2rem}
 .editorial .footer-brand>p{max-width:27ch;margin-top:1rem;font-size:.8rem}
 .editorial .footer-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2rem}.editorial .footer-links>div{display:flex;flex-direction:column;gap:.65rem}
 .editorial .footer-links strong{font-size:.78rem;margin-bottom:.35rem}.editorial .footer-links a{color:var(--muted);font-size:.74rem;text-decoration:none;overflow-wrap:anywhere}
 .editorial .footer-links a:hover{color:var(--brand);text-decoration:underline}
 .editorial .footer-bottom{display:flex;align-items:center;flex-wrap:wrap;justify-content:space-between;gap:1rem;border-top:1px solid var(--line);padding-block:1.4rem;font-size:.68rem}
 .editorial .footer-bottom a{color:var(--muted)}.editorial .footer-locales{display:flex;flex-wrap:wrap;gap:.4rem}
-.editorial .legal-main{padding:4rem 0;min-height:60vh}.editorial .legal-shell{display:grid;grid-template-columns:minmax(0,.3fr) minmax(0,1fr);gap:4rem;max-width:1100px}
+.editorial .legal-main{padding:2rem 0;min-height:60vh}.editorial .legal-shell{display:grid;grid-template-columns:minmax(0,.3fr) minmax(0,1fr);gap:4rem;max-width:1100px}
 .editorial .legal-shell h1{font-size:clamp(2.2rem,5vw,3.8rem);margin-bottom:1.5rem}.editorial .legal-shell h2{font-size:1.6rem;margin:2.5rem 0 1rem}
 .editorial .legal-shell p,.editorial .legal-shell li{font-size:.95rem;line-height:1.85}.editorial .legal-shell article{min-width:0;overflow-wrap:anywhere}
 .editorial .legal-shell aside{position:static}.editorial .legal-shell .button{margin-top:1.5rem}.editorial .legal-shell .legal-note{background:var(--surface);border:1px solid var(--line);padding:1.5rem;color:var(--muted)}
@@ -187,7 +187,7 @@ body.editorial{margin:0;background:var(--paper);color:var(--ink);font:16px/1.65 
  .editorial .translation-preview{padding:.8rem}.editorial .preview-topline{font-size:.62rem;gap:.5rem}.editorial .preview-topline svg{width:17px;height:17px}
  .editorial .preview-film{aspect-ratio:2}.editorial .film-word{font-size:4rem}.editorial .preview-translation p{font-size:.9rem}
  .editorial .sample-languages span{padding:.45rem .65rem;min-height:44px}.editorial .translation-preview figcaption{font-size:.6rem}
- .editorial .simple-section{padding-block:3rem}.editorial .simple-benefits,.editorial .simple-workflow{padding-block:2.5rem}.editorial #downloads{padding-block:3rem}.editorial .simple-faq{padding-block:2.5rem 3rem}.editorial .simple-heading{margin-bottom:1.75rem}.editorial .simple-benefits .simple-heading,.editorial .simple-workflow .simple-heading{margin-bottom:1.5rem}.editorial .split-heading{gap:1.25rem}
+ .editorial .simple-section{padding-block:2rem}.editorial .simple-benefits,.editorial .simple-workflow{padding-block:2rem}.editorial #downloads{padding-block:2rem}.editorial .simple-faq{padding-block:2rem 2.5rem}.editorial .simple-heading{margin-bottom:1.75rem}.editorial .simple-benefits .simple-heading,.editorial .simple-workflow .simple-heading{margin-bottom:1.5rem}.editorial .split-heading{gap:1.25rem}
  .editorial .outcome-composition,.editorial .simple-steps{grid-template-columns:1fr;gap:1.5rem}.editorial .outcome-card{display:grid;grid-template-columns:32px minmax(0,1fr);column-gap:1rem;padding-block:1.5rem 0}
  .editorial .outcome-card>.pictogram{grid-row:1 / span 2;margin:0}.editorial .outcome-card p{grid-column:2;max-width:none}
  .editorial .simple-steps li{padding-bottom:1rem}.editorial .step-card-header{padding-bottom:1rem;margin-bottom:1rem}
@@ -202,3 +202,25 @@ body.editorial{margin:0;background:var(--paper);color:var(--ink);font:16px/1.65 
 /* Keep navigation in document flow when scripts cannot run. */
 .no-js .editorial .theme-toggle,.no-js .editorial .menu-button{display:none}
 @media(max-width:1050px){.no-js .editorial .header-inner{flex-wrap:wrap;padding-block:1rem}.no-js .editorial .main-navigation{position:static;order:3;flex-basis:100%;display:flex;flex-direction:row;flex-wrap:wrap;gap:.25rem 1.25rem;max-height:none;overflow:visible;padding:0;border:0;box-shadow:none;background:none}.no-js .editorial .main-navigation a{padding:.5rem 0}}
+
+/* Local adaptations of the Shimmer Button and Magic Card designs from 21st.dev.
+   https://21st.dev/@dillionverma/library/magic-ui */
+.editorial .simple-actions .button,
+.editorial .guide-actions .button:not(.button-secondary),
+.editorial .colab-start-actions .button:not(.button-secondary) {
+  background-image: linear-gradient(110deg, transparent 35%, rgb(255 255 255 / .25) 50%, transparent 65%);
+  background-size: 240% 100%;
+  background-position: right center;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .editorial :is(.simple-actions, .guide-actions, .colab-start-actions) .button:not(.button-secondary) {
+    transition: background-position .45s ease, background-color .15s ease;
+  }
+  .editorial :is(.simple-actions, .guide-actions, .colab-start-actions) .button:not(.button-secondary):is(:hover, :focus-visible) {
+    background-position: left center;
+  }
+}
+.editorial .version-card:is(:hover, :focus-within) {
+  border-color: var(--brand);
+  background-image: radial-gradient(ellipse at 10% 0, var(--brand-soft), transparent 65%);
+}

@@ -71,7 +71,7 @@ Dann `http://localhost:8080/` öffnen.
 Im Hosting-Repository liegen diese Dateien direkt im Root; dort `--directory .` verwenden.
 Release-Erstellung und GitHub-Pages-Veröffentlichung sind in `DEPLOYMENT.md` beschrieben.
 
-Die drei Nutzungsseiten werden in sieben Sprachen ausgeliefert. Nach Textänderungen alle
+Die drei Nutzungsseiten werden in elf Sprachen ausgeliefert. Nach Textänderungen alle
 Kataloge in `assets/locales/` ergänzen und `python scripts/build_site_i18n.py` ausführen.
 Website-Änderungen allein verändern die bereits veröffentlichten Software-Artefakte nicht.
 
@@ -92,7 +92,7 @@ Sprachwahl (`?lang=de`) hat auch bei gesperrtem Browserspeicher Vorrang vor der 
 
 Das helle Standardschema kombiniert Manrope, blaue Akzente und einheitliche SVG-Piktogramme.
 Ein dunkles Schema kann gewählt werden; die Präferenz bleibt lokal gespeichert.
-Alle sieben Sprachfassungen nutzen dieselben deutschen Vorlagen und vollständige Textkataloge.
+Alle elf Sprachfassungen nutzen dieselben deutschen Vorlagen und vollständige Textkataloge.
 Das Sprachbeispiel auf der Startseite wechselt zwischen drei vorformulierten Übersetzungen.
 Es ist ausdrücklich als Textbeispiel gekennzeichnet, ruft keinen Dienst auf und spielt kein Audio ab.
 Ohne JavaScript bleibt das englische Beispiel sichtbar; nicht funktionierende Auswahlknöpfe bleiben verborgen.

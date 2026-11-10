@@ -1,0 +1,364 @@
+<!doctype html>
+<html class="no-js" data-locale-detect="false" data-locale-page="nl" data-theme="light" lang="nl">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="#f6f7f9" name="theme-color"/>
+<meta content="Vertaal uw video naar een nieuwe taal - met een nieuwe stemtrack en passende ondertitels. Zoek uw invoer in de browser of op uw computer." name="description"/>
+<meta content="index,follow,max-image-preview:large" name="robots"/>
+<link href="https://linguoai.de/nl/" rel="canonical"/>
+<link href="https://linguoai.de/" hreflang="de" rel="alternate"/>
+<link href="https://linguoai.de/en/" hreflang="en" rel="alternate"/>
+<link href="https://linguoai.de/ru/" hreflang="ru" rel="alternate"/>
+<link href="https://linguoai.de/uk/" hreflang="uk" rel="alternate"/>
+<link href="https://linguoai.de/tr/" hreflang="tr" rel="alternate"/>
+<link href="https://linguoai.de/es/" hreflang="es" rel="alternate"/>
+<link href="https://linguoai.de/it/" hreflang="it" rel="alternate"/>
+<link href="https://linguoai.de/fr/" hreflang="fr" rel="alternate"/>
+<link href="https://linguoai.de/pt/" hreflang="pt" rel="alternate"/>
+<link href="https://linguoai.de/pl/" hreflang="pl" rel="alternate"/>
+<link href="https://linguoai.de/nl/" hreflang="nl" rel="alternate"/>
+<link href="https://linguoai.de/en/" hreflang="x-default" rel="alternate"/>
+<link href="/assets/favicon.svg" rel="icon" type="image/svg+xml"/>
+<link href="/site.webmanifest" rel="manifest"/>
+<meta content="website" property="og:type"/>
+<meta content="nl_NL" property="og:locale"/>
+<meta content="LinguoAI" property="og:site_name"/>
+<meta content="LinguoAI – Uw video in een nieuwe taal" property="og:title"/>
+<meta content="Vertaal uw video naar een nieuwe taal - met een nieuwe stemtrack en passende ondertitels. Zoek uw invoer in de browser of op uw computer." property="og:description"/>
+<meta content="https://linguoai.de/nl/" property="og:url"/>
+<meta content="summary" name="twitter:card"/>
+<title>LinguoAI – Uw video in een nieuwe taal</title>
+<link href="/assets/simple.css?v=20261023-1" rel="stylesheet"/>
+<link href="/assets/editorial.css?v=20261110-1" rel="stylesheet"/>
+<script>
+      document.documentElement.classList.replace("no-js", "has-js");
+      try {
+        const preferredTheme = window.localStorage.getItem("linguoai-theme");
+        if (preferredTheme === "dark") {
+          document.documentElement.setAttribute("data-theme", "dark");
+        } else {
+          document.documentElement.setAttribute("data-theme", "light");
+        }
+      } catch (_themeError) {}
+      (() => {
+        if (document.documentElement.dataset.localeDetect !== "true") return;
+        if (new URLSearchParams(window.location.search).get("lang") === "de") return;
+        const supported = new Set(["de", "en", "ru", "uk", "tr", "es", "it", "fr", "pt", "pl", "nl"]);
+        const route = { de: "/", en: "/en/", ru: "/ru/", uk: "/uk/", tr: "/tr/", es: "/es/", it: "/it/", fr: "/fr/", pt: "/pt/", pl: "/pl/", nl: "/nl/" };
+        let selected = "";
+        try {
+          const saved = window.localStorage.getItem("linguoai.locale") || "";
+          if (supported.has(saved)) selected = saved;
+        } catch (_error) {
+          // Browser language remains available when storage is blocked.
+        }
+        if (!selected) {
+          const requested = Array.isArray(navigator.languages) ? navigator.languages : [navigator.language];
+          selected = requested.map((value) => String(value || "").toLowerCase().split("-")[0])
+            .find((value) => supported.has(value)) || "en";
+        }
+        if (selected !== "de") window.location.replace(route[selected] + window.location.hash);
+      })();
+    </script>
+<script defer="" src="/assets/locale.js?v=20261110-1"></script>
+<script defer="" src="/assets/site.js?v=20261027-2"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://linguoai.de/nl/#website",
+      "url": "https://linguoai.de/nl/",
+      "name": "LinguoAI",
+      "inLanguage": "nl"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://linguoai.de/nl/#software",
+      "name": "LinguoAI",
+      "url": "https://linguoai.de/nl/",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "Windows, Linux, Google Colab",
+      "description": "Videotranscriptie, vertaling, ondertiteling en getimede nieuwe stemtrack.",
+      "softwareVersion": "2.2.2",
+      "softwareRequirements": "Python 3.10 of hoger en FFmpeg; Python 3.11 wordt aanbevolen voor Chatterbox",
+      "downloadUrl": "https://linguoai.de/downloads/LinguoAI-2.2.2-source.zip",
+      "inLanguage": "nl"
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Heb ik een krachtige grafische kaart nodig?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Nee. Verwerking is ook mogelijk op de CPU, maar duurt daar langer. Een korte video is voldoende om u op weg te helpen. Een GPU is optioneel."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Hoe lang werkt mijn Colab-koppeling?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Alleen zolang de bijbehorende Colab-sessie en de interface actief zijn. De Gradio-link is dynamisch en mag alleen worden gedeeld met vertrouwde mensen. Download de resultaten tijdig of sla ze op in Google Drive."
+          }
+        }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body class="simple-site simple-home editorial">
+<a class="skip-link" href="#main">Ga direct naar de inhoud</a>
+<header class="site-header" data-header="">
+<div class="container header-inner">
+<a aria-label="LinguoAI-startpagina" class="brand" href="#top">
+<img alt="" height="34" src="/assets/logo-mark.svg" width="34"/><span>LinguoAI</span>
+</a>
+<nav aria-label="Hoofdnavigatie" class="main-navigation" data-menu="" id="main-navigation"><a href="/nl/#ablauf">Hier is hoe het werkt</a><a href="/nl/#versionen">Zoek versie</a><a href="/nl/anleitung.html">Instructies</a><a href="/web.html">Videostudio</a></nav>
+<div class="header-tools">
+<button aria-label="Donker kleurenschema" aria-pressed="false" class="theme-toggle" data-theme-toggle="" title="Donker kleurenschema" type="button">
+<span aria-hidden="true" class="theme-toggle-track">
+<span class="theme-toggle-icon icon-moon">
+<svg fill="none" height="13" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" viewbox="0 0 16 16" width="13"><path d="M13.5 9.5a5.5 5.5 0 1 1-7-7 6.5 6.5 0 0 0 7 7Z"></path></svg>
+</span>
+<span class="theme-toggle-thumb"></span>
+<span class="theme-toggle-icon icon-sun">
+<svg fill="none" height="13" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" viewbox="0 0 16 16" width="13"><circle cx="8" cy="8" r="3"></circle><path d="M8 1.5v1.5m0 10v1.5m-6.5-6.5H3m10 0h1.5m-8.9-3.9 1 1m7.8 7.8 1 1m-9.8 0 1-1m7.8-7.8 1-1"></path></svg>
+</span>
+</span>
+<span class="sr-only">Donker kleurenschema</span>
+</button>
+<details class="language-switcher" data-language-switcher="">
+<summary aria-label="Selecteer taal"><span data-locale-code="">NL</span><span aria-hidden="true">⌄</span></summary>
+<div class="language-options" data-i18n-ignore="">
+<a data-locale-link="de" href="/" hreflang="de" lang="de">Deutsch</a>
+<a data-locale-link="en" href="/en/" hreflang="en" lang="en">English</a>
+<a data-locale-link="ru" href="/ru/" hreflang="ru" lang="ru">Русский</a>
+<a data-locale-link="uk" href="/uk/" hreflang="uk" lang="uk">Українська</a>
+<a data-locale-link="tr" href="/tr/" hreflang="tr" lang="tr">Türkçe</a>
+<a data-locale-link="es" href="/es/" hreflang="es" lang="es">Español</a>
+<a data-locale-link="it" href="/it/" hreflang="it" lang="it">Italiano</a>
+<a data-locale-link="fr" href="/fr/" hreflang="fr" lang="fr">Français</a>
+<a data-locale-link="pt" href="/pt/" hreflang="pt" lang="pt">Português</a>
+<a data-locale-link="pl" href="/pl/" hreflang="pl" lang="pl">Polski</a>
+<a aria-current="page" data-locale-link="nl" href="/nl/" hreflang="nl" lang="nl">Nederlands</a>
+</div>
+</details>
+<a class="button button-small header-action" href="#versionen">Zoek een geschikte versie <span aria-hidden="true">↓</span></a>
+<button aria-controls="main-navigation" aria-expanded="false" class="menu-button" data-menu-button="" type="button">
+<span class="sr-only">Navigatie openen</span><span aria-hidden="true"></span><span aria-hidden="true"></span>
+</button>
+</div>
+</div>
+</header>
+<main id="main">
+<section class="simple-hero" id="top"><div class="container simple-hero-grid">
+<div class="simple-hero-copy"><p class="eyebrow">Vertaal video's. mensen bereiken.</p>
+<h1>Jouw video.<br/><span>In een nieuwe taal.</span></h1>
+<p class="simple-intro">Maak uw video begrijpelijk voor meer mensen. LinguoAI vertaalt wat er wordt gesproken en creëert een nieuwe stemtrack met passende ondertitels.</p>
+<div class="simple-actions"><a class="button" href="#versionen">Zoek een geschikte versie <svg aria-hidden="true" class="pictogram" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.65" viewbox="0 0 24 24" width="24"><path d="M4 12h16m-6-6 6 6-6 6"></path></svg></a><a class="text-link" href="/nl/colab.html">Open de Colab-handleiding <span aria-hidden="true">→</span></a></div>
+<p class="hero-note">In de browser of op uw computer. Jij beslist.</p>
+<div class="hero-outputs"><span><svg aria-hidden="true" class="pictogram" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.65" viewbox="0 0 24 24" width="24"><rect height="13" rx="3" width="6" x="9" y="2"></rect><path d="M5 10v2a7 7 0 0 0 14 0v-2m-7 9v3m-4 0h8"></path></svg> Nieuwe voicetrack</span><span><svg aria-hidden="true" class="pictogram" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.65" viewbox="0 0 24 24" width="24"><rect height="16" rx="3" width="20" x="2" y="4"></rect><path d="M6 12h5m2 0h5m-12 4h8m2 0h2"></path></svg> Passende ondertitels</span></div></div>
+<figure aria-labelledby="preview-title" class="translation-preview" data-translation-preview="">
+<div class="preview-topline"><span><svg aria-hidden="true" class="pictogram" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.65" viewbox="0 0 24 24" width="24"><rect height="16" rx="3" width="18" x="3" y="4"></rect><path d="m10 9 5 3-5 3Z"></path></svg> <span id="preview-title">Eén video, nieuwe mogelijkheden</span></span><span class="preview-example">Voorbeeld</span></div>
+<div class="preview-film"><div aria-hidden="true" class="film-word" data-i18n-ignore="">Hallo<span>世界</span></div><div aria-hidden="true" class="film-border"></div><div class="film-bottom" data-i18n-ignore=""><span>DE → <span data-sample-code="">EN</span></span><svg aria-hidden="true" class="pictogram" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.65" viewbox="0 0 24 24" width="24"><rect height="16" rx="3" width="20" x="2" y="4"></rect><path d="M6 12h5m2 0h5m-12 4h8m2 0h2"></path></svg></div></div>
+<div class="preview-translation"><div><span class="preview-label">Origineel · Duits</span><p data-i18n-ignore="" lang="de">Schön, dass du da bist.</p></div><span aria-hidden="true" class="translation-arrow">↓</span><div class="translated-line"><span class="preview-label" data-sample-label="">Nieuwe taalversie · Engels</span><p data-i18n-ignore="" data-sample-text="" lang="en">It's good to have you here.</p></div></div>
+<fieldset class="sample-languages" hidden=""><legend>Probeer een taal</legend><div><label><input checked="" name="sample-language" type="radio" value="en"/><span data-i18n-ignore="" lang="en">English</span></label><label><input name="sample-language" type="radio" value="es"/><span data-i18n-ignore="" lang="es">Español</span></label><label><input name="sample-language" type="radio" value="fr"/><span data-i18n-ignore="" lang="fr">Français</span></label></div></fieldset>
+<p aria-atomic="true" aria-live="polite" class="sr-only" data-sample-result="" role="status"></p>
+<figcaption>Tekstvoorbeeld ter illustratie. Geen audio- of videovoorbeeld.</figcaption>
+</figure></div></section>
+<section class="simple-section simple-benefits" id="funktionen"><div class="container">
+<div class="simple-heading split-heading"><div><p class="section-kicker">Jouw inhoud blijft. De taal verandert.</p><h2>Een opname.<br/>Bereik meer mensen.</h2></div><p>Een tutorial, een interview of je volgende uitlegvideo: je hoeft hem niet opnieuw op te nemen.</p></div>
+<div class="outcome-composition"><article class="outcome-card"><svg aria-hidden="true" class="pictogram" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.65" viewbox="0 0 24 24" width="24"><path d="M3 5h12M9 3v2m-4 3c2 5 5 7 9 8m-1-11c-1 7-4 10-10 12m12 4 4-10 4 10m-6-3h4"></path></svg><h3>Vertalen</h3><p>Wat er wordt gesproken, wordt herkend en vertaald in de door u gekozen taal.</p></article><article class="outcome-card"><svg aria-hidden="true" class="pictogram" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.65" viewbox="0 0 24 24" width="24"><rect height="13" rx="3" width="6" x="9" y="2"></rect><path d="M5 10v2a7 7 0 0 0 14 0v-2m-7 9v3m-4 0h8"></path></svg><h3>Opnieuw scoren</h3><p>Er wordt een nieuwe stemtrack gemaakt en getimed die bij uw video past.</p></article><article class="outcome-card"><svg aria-hidden="true" class="pictogram" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.65" viewbox="0 0 24 24" width="24"><rect height="16" rx="3" width="20" x="2" y="4"></rect><path d="M6 12h5m2 0h5m-12 4h8m2 0h2"></path></svg><h3>Neem ondertitels mee</h3><p>U ontvangt ook het origineel en de vertaling als SRT-bestanden.</p></article></div><p class="simple-honest-note"><svg aria-hidden="true" class="pictogram" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.65" viewbox="0 0 24 24" width="24"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v6m0-10h.01"></path></svg><span>Het beeld blijft. De nieuwe voicetrack vervangt al het originele geluid, inclusief muziek en geluiden. Lipbewegingen worden niet aangepast.</span></p></div></section>
+<section aria-labelledby="versions-title" class="simple-section version-section" data-version-finder="">
+<div class="container">
+<div class="simple-heading">
+<p class="section-kicker">Jouw invoer</p>
+<h2 id="versions-title">Welk pad past bij jou?</h2>
+<p class="version-intro">Drie wegen naar hetzelfde doel. Kies de vermelding die bij u past.</p>
+</div>
+<fieldset class="version-filter" data-version-controls="" hidden="">
+<legend>Wat is belangrijk voor jou?</legend>
+<div class="version-options">
+<label><input checked="" name="version-need" type="radio" value="all"/><span>Vergelijk iedereen</span></label>
+<label><input name="version-need" type="radio" value="colab"/><span>Begin zonder installatie</span></label>
+<label><input name="version-need" type="radio" value="desktop"/><span>Verwerk bestanden lokaal</span></label>
+<label><input name="version-need" type="radio" value="studio"/><span>Ik heb toegang tot de studio</span></label>
+</div>
+</fieldset>
+<p aria-atomic="true" aria-live="polite" class="version-result" data-version-result="" role="status"></p>
+<div class="version-grid" id="versionen">
+<article aria-labelledby="colab-version-title" class="version-card is-primary" data-version="colab" id="version-colab">
+<div class="version-card-top"><svg aria-hidden="true" class="pictogram" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.65" viewbox="0 0 24 24" width="24"><path d="M6 18a4 4 0 0 1-1-7.87A7 7 0 0 1 18.5 8a5 5 0 0 1-.5 10M9 15l3-3 3 3m-3-3v9"></path></svg>
+<span class="version-tag is-recommended">Zonder lokale installatie</span>
+</div>
+<h3 id="colab-version-title">Google Colab</h3>
+<p class="version-description" data-version-description="">Om aan de slag te gaan zonder lokale installatie. Je start je eigen sessie op Google.</p>
+<dl class="version-facts">
+<div><dt>Je hebt nodig</dt><dd>Google-account en internet</dd></div>
+<div><dt>Faciliteit</dt><dd>Start Notebook en wacht een paar minuten</dd></div>
+<div><dt>Goed om te weten</dt><dd>Sessie beperkt in tijd. GPU niet gegarandeerd; Colab kan kosten met zich meebrengen.</dd></div>
+</dl>
+<div class="version-card-actions">
+<a class="button" href="/nl/colab.html">Ga aan de slag met Colab <span aria-hidden="true">→</span></a>
+<a class="text-link" data-colab-start="" href="https://colab.research.google.com/github/riemenschneider2015-svg/linguoai-de/blob/main/notebooks/LinguoAI_Colab.ipynb">Open Notebook rechtstreeks <span aria-hidden="true">↗</span></a>
+</div>
+</article>
+<article aria-labelledby="desktop-version-title" class="version-card" data-version="desktop" id="version-desktop">
+<div class="version-card-top"><svg aria-hidden="true" class="pictogram" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.65" viewbox="0 0 24 24" width="24"><rect height="14" rx="2" width="20" x="2" y="3"></rect><path d="M8 21h8m-4-4v4M6 7h8"></path></svg>
+<span class="version-tag">Op uw computer</span>
+</div>
+<h3 id="desktop-version-title">Bureaublad</h3>
+<p class="version-description" data-version-description="">Voor regulier werk en controle over uw bestanden. De verwerking vindt plaats op uw computer.</p>
+<dl class="version-facts">
+<div><dt>Je hebt nodig</dt><dd>Python en FFmpeg</dd></div>
+<div><dt>Faciliteit</dt><dd>Download het project en installeer het lokaal</dd></div>
+<div><dt>Goed om te weten</dt><dd>GPU optioneel. Alleen bij lokale modellen blijft de inhoud op uw computer staan.</dd></div>
+</dl>
+<div class="version-card-actions">
+<a class="button button-secondary" href="/nl/anleitung.html#desktop">Bureaublad instellen <span aria-hidden="true">→</span></a>
+<a class="text-link" href="/nl/anleitung.html#cli">Voor professionals: opdrachtregel <span aria-hidden="true">→</span></a>
+</div>
+</article>
+<article aria-labelledby="studio-version-title" class="version-card" data-version="studio" id="version-studio">
+<div class="version-card-top"><svg aria-hidden="true" class="pictogram" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.65" viewbox="0 0 24 24" width="24"><rect height="18" rx="3" width="20" x="2" y="3"></rect><path d="M2 8h20m-16-2h.01M9 6h.01m1 6 5 3-5 3Z"></path></svg>
+<span class="version-tag version-tag-preview">Proefdraaien · Toegang vereist</span>
+</div>
+<h3 id="studio-version-title">Videostudio</h3>
+<p class="version-description" data-version-description="">Voor gebruikers die studiotoegang hebben gekregen. Log in en upload video's rechtstreeks in de browser.</p>
+<dl class="version-facts">
+<div><dt>Je hebt nodig</dt><dd>Studio-gebruikersnaam en wachtwoord</dd></div>
+<div><dt>Faciliteit</dt><dd>Geen installatie, geen Google-account</dd></div>
+<div><dt>Goed om te weten</dt><dd>Verwerking op de server. Vertaling nog steeds beperkt; volledige proces nog niet bevestigd.</dd></div>
+</dl>
+<div class="version-card-actions">
+<a class="button button-secondary" href="/web.html">Open Videostudio <span aria-hidden="true">→</span></a>
+<a class="text-link" href="/nl/colab.html">Geen toegang? Gebruik Colab <span aria-hidden="true">→</span></a>
+</div>
+</article>
+</div>
+<p class="version-footnote">U kunt later wijzigen. Voor desktop heb je de download nodig; Je start Colab en Video Studio via hun links.</p>
+</div>
+</section>
+<section class="simple-section simple-workflow" id="ablauf"><div class="container"><div class="simple-heading"><p class="section-kicker">Van jouw video naar de nieuwe versie</p><h2>Een duidelijk pad. Drie stappen.</h2></div><ol class="simple-steps"><li><div class="step-card-header"><svg aria-hidden="true" class="pictogram" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.65" viewbox="0 0 24 24" width="24"><rect height="16" rx="3" width="18" x="3" y="4"></rect><path d="m10 9 5 3-5 3Z"></path></svg><span aria-hidden="true">01</span></div><h3>Selecteer video</h3><p>Laad uw video in de geselecteerde versie. Voor de eerste poging is een kort fragment voldoende.</p></li><li><div class="step-card-header"><svg aria-hidden="true" class="pictogram" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.65" viewbox="0 0 24 24" width="24"><path d="M3 5h12M9 3v2m-4 3c2 5 5 7 9 8m-1-11c-1 7-4 10-10 12m12 4 4-10 4 10m-6-3h4"></path></svg><span aria-hidden="true">02</span></div><h3>Kies taal</h3><p>Kies de doeltaal en een geschikte stem. Begin met de vertaling.</p></li><li><div class="step-card-header"><svg aria-hidden="true" class="pictogram" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.65" viewbox="0 0 24 24" width="24"><path d="M12 3v12m-4-4 4 4 4-4M4 16v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"></path></svg><span aria-hidden="true">03</span></div><h3>Controleer en download</h3><p>Luister naar de nieuwe versie en controleer de ondertitels. Sla uw video- en SRT-bestanden op.</p></li></ol><a class="text-link" href="#versionen">Kies versie en instructies <span aria-hidden="true">→</span></a></div></section>
+<section class="simple-section" id="downloads">
+<div class="container simple-download-grid">
+<div>
+<p class="section-kicker">Ook op uw computer</p>
+<h2>Lokaal installeren.</h2>
+<p>Voor regulier werk en meer controle over uw bestanden. U hebt Python en FFmpeg nodig; de instructies leiden u door de installatie.</p>
+<a class="text-link" href="/nl/anleitung.html#desktop">Voor lokale installatie <span aria-hidden="true">→</span></a>
+</div>
+<div class="simple-download-card">
+<div class="download-badge-row"><svg aria-hidden="true" class="pictogram" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.65" viewbox="0 0 24 24" width="24"><path d="M12 3v12m-4-4 4 4 4-4M4 16v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"></path></svg><span data-i18n-ignore="">LinguoAI 2.2.2</span></div>
+<h3>Het volledige project</h3>
+<p>Broncode met desktop-app en Notebook. Geen voltooid installatieprogramma: Volg de installatie-instructies.</p>
+<a class="button button-secondary" download="" href="https://linguoai.de/downloads/LinguoAI-2.2.2-source.zip">Download broncode ZIP <span aria-hidden="true">↓</span></a>
+<details class="simple-more">
+<summary>Voor gevorderde gebruikers</summary>
+<div>
+<a download="" href="https://linguoai.de/downloads/linguoai-2.2.2-py3-none-any.whl">Python-Wheel downloaden</a>
+<a href="/nl/anleitung.html#cli">Commandoregel en andere opties</a>
+<a href="https://github.com/riemenschneider2015-svg/linguoai-de">Broncode op GitHub</a>
+</div>
+</details>
+</div>
+</div>
+</section>
+<section class="simple-section simple-faq" id="fragen">
+<div class="container simple-faq-grid">
+<div>
+<p class="section-kicker">Goed om te weten</p>
+<h2>De belangrijkste vragen.</h2>
+<p>Technologie, stemmen en geavanceerde instellingen vind je in de <a href="/nl/anleitung.html">gedetailleerde instructies</a>.</p>
+</div>
+<div class="faq-list">
+<details>
+<summary>Is LinguoAI gratis?<span aria-hidden="true">+</span></summary>
+<p>De LinguoAI-broncode is gratis beschikbaar. Aan externe diensten en aanbiedingen van Colab kunnen kosten verbonden zijn.</p>
+<p>Google beperkt het merendeel van het gebruik van externe webinterfaces in gratis Colab-termen zonder positief rekenkrediet. Controleer de Colab-omstandigheden voordat u begint.</p>
+<p><a href="https://research.google.com/colaboratory/faq.html">Veelgestelde vragen over Google Colab</a></p>
+</details>
+<details>
+<summary>Wat gebeurt er met mijn bestanden?<span aria-hidden="true">+</span></summary>
+<p>Op het bureaublad kunt u lokale modellen gebruiken. In Colab worden bestanden verwerkt op een tijdelijke Google VM; Onlinevertalers en onlinestemmen sturen gegevens naar hun provider. Gebruik alleen inhoud en stemmen waarvoor u over de benodigde rechten beschikt.</p>
+</details>
+<details>
+<summary>Heb ik een krachtige grafische kaart nodig?<span aria-hidden="true">+</span></summary>
+<p>Nee. Verwerking is ook mogelijk op de CPU, maar duurt daar langer. Een korte video is voldoende om u op weg te helpen. Een GPU is optioneel.</p>
+</details>
+<details>
+<summary>Hoe lang werkt mijn Colab-koppeling?<span aria-hidden="true">+</span></summary>
+<p>Alleen zolang de bijbehorende Colab-sessie en de interface actief zijn. De Gradio-link is dynamisch en mag alleen worden gedeeld met vertrouwde mensen. Download de resultaten tijdig of sla ze op in Google Drive.</p>
+</details>
+<details>
+<summary>Kan ik kiezen voor snellere spraakherkenning?<span aria-hidden="true">+</span></summary>
+<p>Optioneel herkent Parakeet taal op de CPU: NVIDIA v3 ondersteunt 25 Europese talen, primeline is gespecialiseerd in Duits. Whisper blijft de veelzijdige standaard. Snelheid en kwaliteit zijn afhankelijk van de opname en computer.</p>
+<p><a href="/nl/anleitung.html#spracherkennung">Selecteer spraakherkenning →</a></p>
+</details>
+<details>
+<summary>Kun je rechtstreeks in de browser uploaden en downloaden?<span aria-hidden="true">+</span></summary>
+<p>Ja. Google Colab biedt een interface voor uw lopende sessie. De aparte videostudio is in proefbedrijf en heeft toegang nodig; de vertaling is daar nog steeds beperkt.</p>
+<p><a href="/nl/anleitung.html#webversion">Browser en server →</a></p>
+</details>
+</div>
+</div>
+</section>
+</main>
+<footer class="site-footer">
+<div class="container footer-main">
+<div class="footer-brand">
+<a class="brand" href="#top">
+<img alt="" height="34" src="/assets/logo-mark.svg" width="34"/><span>LinguoAI</span>
+</a>
+<p>Video's vertalen, opnieuw nasynchroniseren en ondertitelen.</p>
+</div>
+<div class="footer-links">
+<div>
+<strong>Begin</strong>
+<a href="/nl/">Naar de startpagina</a>
+<a href="#versionen">Zoek versie</a>
+<a href="/nl/colab.html">Colab-instructies</a>
+<a href="/nl/anleitung.html#desktop">Lokaal installeren</a>
+<a href="/web.html">Videostudio</a>
+<a href="#downloads">Downloads</a>
+</div>
+<div>
+<strong>Meer informatie</strong>
+<a href="/nl/anleitung.html">Gedetailleerde instructies</a>
+<a href="#fragen">Hulp</a>
+<a href="https://github.com/riemenschneider2015-svg/linguoai-de">GitHub</a>
+</div>
+<div>
+<strong>Legaal</strong>
+<a href="/impressum.html">Afdruk</a>
+<a href="/datenschutz.html">Gegevensbescherming</a>
+<a href="/drive-datenschutz.html">Gegevensbescherming van de aandrijfverbinding</a>
+</div>
+</div>
+</div>
+<div class="container footer-bottom">
+<span>© <span data-current-year="">2026</span> LinguoAI</span>
+<span>Zonder tracker. Zonder externe weblettertypen.</span>
+<div class="footer-locales" data-i18n-ignore="">
+<a aria-current="page" href="/nl/" hreflang="de" lang="de">DE</a> ·
+          <a href="/en/" hreflang="en" lang="en">EN</a> ·
+          <a href="/ru/" hreflang="ru" lang="ru">RU</a> ·
+          <a href="/uk/" hreflang="uk" lang="uk">UK</a> ·
+          <a href="/tr/" hreflang="tr" lang="tr">TR</a> ·
+          <a href="/es/" hreflang="es" lang="es">ES</a> ·
+          <a href="/it/" hreflang="it" lang="it">IT</a>
+<a href="/fr/" hreflang="fr" lang="fr">FR</a>
+<a href="/pt/" hreflang="pt" lang="pt">PT</a>
+<a href="/pl/" hreflang="pl" lang="pl">PL</a>
+<a href="/nl/" hreflang="nl" lang="nl">NL</a>
+</div>
+</div>
+</footer>
+</body>
+</html>

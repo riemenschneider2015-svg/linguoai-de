@@ -1,0 +1,465 @@
+<!doctype html>
+<html class="no-js" data-locale-detect="false" data-locale-page="nl" data-theme="light" lang="nl">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="#f6f7f9" name="theme-color"/>
+<meta content="Installeer LinguoAI lokaal: bureaubladinstructies, stemmen, opdrachtregel en geavanceerde opties." name="description"/>
+<meta content="index,follow" name="robots"/>
+<link href="https://linguoai.de/nl/anleitung.html" rel="canonical"/>
+<link href="https://linguoai.de/anleitung.html" hreflang="de" rel="alternate"/>
+<link href="https://linguoai.de/en/anleitung.html" hreflang="en" rel="alternate"/>
+<link href="https://linguoai.de/ru/anleitung.html" hreflang="ru" rel="alternate"/>
+<link href="https://linguoai.de/uk/anleitung.html" hreflang="uk" rel="alternate"/>
+<link href="https://linguoai.de/tr/anleitung.html" hreflang="tr" rel="alternate"/>
+<link href="https://linguoai.de/es/anleitung.html" hreflang="es" rel="alternate"/>
+<link href="https://linguoai.de/it/anleitung.html" hreflang="it" rel="alternate"/>
+<link href="https://linguoai.de/fr/anleitung.html" hreflang="fr" rel="alternate"/>
+<link href="https://linguoai.de/pt/anleitung.html" hreflang="pt" rel="alternate"/>
+<link href="https://linguoai.de/pl/anleitung.html" hreflang="pl" rel="alternate"/>
+<link href="https://linguoai.de/nl/anleitung.html" hreflang="nl" rel="alternate"/>
+<link href="https://linguoai.de/en/anleitung.html" hreflang="x-default" rel="alternate"/>
+<link href="/assets/favicon.svg" rel="icon" type="image/svg+xml"/>
+<link href="/site.webmanifest" rel="manifest"/>
+<meta content="website" property="og:type"/>
+<meta content="nl_NL" property="og:locale"/>
+<meta content="LinguoAI" property="og:site_name"/>
+<meta content="LinguoAI – Installatie en geavanceerde opties" property="og:title"/>
+<meta content="Installeer LinguoAI lokaal: bureaubladinstructies, stemmen, opdrachtregel en geavanceerde opties." property="og:description"/>
+<meta content="https://linguoai.de/nl/anleitung.html" property="og:url"/>
+<title>LinguoAI – Installatie en geavanceerde opties</title>
+<link href="/assets/simple.css?v=20261023-1" rel="stylesheet"/>
+<link href="/assets/guide.css?v=20261013-1" rel="stylesheet"/>
+<link href="/assets/editorial.css?v=20261110-1" rel="stylesheet"/>
+<link href="/assets/editorial-guides.css?v=20261110-1" rel="stylesheet"/>
+<script>
+      document.documentElement.classList.replace("no-js", "has-js");
+      try {
+        const preferredTheme = window.localStorage.getItem("linguoai-theme");
+        if (preferredTheme === "dark") {
+          document.documentElement.setAttribute("data-theme", "dark");
+        } else {
+          document.documentElement.setAttribute("data-theme", "light");
+        }
+      } catch (_themeError) {}
+      (() => {
+        if (document.documentElement.dataset.localeDetect !== "true") return;
+        if (new URLSearchParams(window.location.search).get("lang") === "de") return;
+        const supported = new Set(["de", "en", "ru", "uk", "tr", "es", "it", "fr", "pt", "pl", "nl"]);
+        let selected = "";
+        try {
+          const saved = window.localStorage.getItem("linguoai.locale") || "";
+          if (supported.has(saved)) selected = saved;
+        } catch (_error) {
+          // Browser preferences remain available when storage is blocked.
+        }
+        if (!selected) {
+          const requested = Array.isArray(navigator.languages) ? navigator.languages : [navigator.language];
+          selected = requested
+            .map((value) => String(value || "").toLowerCase().split("-")[0])
+            .find((value) => supported.has(value)) || "en";
+        }
+        if (selected !== "de") window.location.replace(`/${selected}/anleitung.html${window.location.hash}`);
+      })();
+    </script>
+<script defer="" src="/assets/locale.js?v=20261110-1"></script>
+<script defer="" src="/assets/site.js?v=20261028-1"></script>
+</head>
+<body class="guide-page editorial">
+<a class="skip-link" href="#main">Ga direct naar de inhoud</a>
+<header class="site-header" data-header="">
+<div class="container header-inner">
+<a aria-label="LinguoAI-startpagina" class="brand" href="/nl/">
+<img alt="" height="38" src="/assets/logo-mark.svg" width="38"/>
+<span>LinguoAI</span>
+</a>
+<nav aria-label="Hoofdnavigatie" class="main-navigation" data-menu="" id="main-navigation"><a href="/nl/#ablauf">Hier is hoe het werkt</a><a href="/nl/#versionen">Zoek versie</a><a href="/nl/anleitung.html">Instructies</a><a href="/web.html">Videostudio</a></nav>
+<div class="header-tools">
+<button aria-label="Donker kleurenschema" aria-pressed="false" class="theme-toggle" data-theme-toggle="" title="Donker kleurenschema" type="button">
+<span aria-hidden="true" class="theme-toggle-track">
+<span class="theme-toggle-icon icon-moon">
+<svg fill="none" height="13" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" viewbox="0 0 16 16" width="13"><path d="M13.5 9.5a5.5 5.5 0 1 1-7-7 6.5 6.5 0 0 0 7 7Z"></path></svg>
+</span>
+<span class="theme-toggle-thumb"></span>
+<span class="theme-toggle-icon icon-sun">
+<svg fill="none" height="13" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" viewbox="0 0 16 16" width="13"><circle cx="8" cy="8" r="3"></circle><path d="M8 1.5v1.5m0 10v1.5m-6.5-6.5H3m10 0h1.5m-8.9-3.9 1 1m7.8 7.8 1 1m-9.8 0 1-1m7.8-7.8 1-1"></path></svg>
+</span>
+</span>
+<span class="sr-only">Donker kleurenschema</span>
+</button>
+<details class="language-switcher" data-language-switcher="">
+<summary aria-label="Selecteer taal"><span data-locale-code="">NL</span><span aria-hidden="true">⌄</span></summary>
+<div class="language-options" data-i18n-ignore="">
+<a data-locale-link="de" href="/anleitung.html" hreflang="de" lang="de">Deutsch</a>
+<a data-locale-link="en" href="/en/anleitung.html" hreflang="en" lang="en">English</a>
+<a data-locale-link="ru" href="/ru/anleitung.html" hreflang="ru" lang="ru">Русский</a>
+<a data-locale-link="uk" href="/uk/anleitung.html" hreflang="uk" lang="uk">Українська</a>
+<a data-locale-link="tr" href="/tr/anleitung.html" hreflang="tr" lang="tr">Türkçe</a>
+<a data-locale-link="es" href="/es/anleitung.html" hreflang="es" lang="es">Español</a>
+<a data-locale-link="it" href="/it/anleitung.html" hreflang="it" lang="it">Italiano</a>
+<a data-locale-link="fr" href="/fr/anleitung.html" hreflang="fr" lang="fr">Français</a>
+<a data-locale-link="pt" href="/pt/anleitung.html" hreflang="pt" lang="pt">Português</a>
+<a data-locale-link="pl" href="/pl/anleitung.html" hreflang="pl" lang="pl">Polski</a>
+<a aria-current="page" data-locale-link="nl" href="/nl/anleitung.html" hreflang="nl" lang="nl">Nederlands</a>
+</div>
+</details>
+<a class="button button-small header-action" href="#desktop">Bureaublad instellen</a>
+<button aria-controls="main-navigation" aria-expanded="false" class="menu-button" data-menu-button="" type="button">
+<span class="sr-only">Navigatie openen</span><span aria-hidden="true"></span><span aria-hidden="true"></span>
+</button>
+</div>
+</div>
+</header>
+<main class="container guide-main" id="main">
+<div class="guide-intro">
+<p class="section-kicker">Stap voor stap</p>
+<h1>Installeer LinguoAI op uw pc.</h1>
+<p>Hier ziet u waar u op klikt, wat u invoert en wanneer u klaar bent. Begin met stap 1. Extra opties vind je onderaan.</p>
+<div class="guide-actions">
+<a class="button" href="#desktop">Begin met stap 1</a>
+<a class="text-link" href="/nl/colab.html">Open de Colab-handleiding <span aria-hidden="true">→</span></a>
+<a class="text-link" href="/nl/colab.html">Open de Colab-handleiding <span aria-hidden="true">→</span></a>
+<a class="text-link" href="/nl/#versionen">Zoek versie <span aria-hidden="true">→</span></a>
+</div>
+</div>
+<nav aria-label="Op deze pagina" class="guide-toc"><a href="#desktop">Installatie</a><a href="#erstes-video">Eerste filmpje</a><a href="#installationshilfe">Hulp</a><a href="#mehr-optionen">Meer opties</a></nav>
+<section aria-labelledby="desktop-title" class="guide-section" id="desktop">
+<p class="section-kicker">Eenmalig instellen</p>
+<h2 id="desktop-title">Installeer op uw Windows-pc</h2>
+<p>Je hebt een Windows pc nodig met internet en ruimte voor meerdere gigabytes. Er is nog geen voltooid installatiebestand. Met de volgende stappen stelt u het programma in. Je hoeft hiervoor niet te kunnen programmeren.</p>
+<ol class="beginner-steps install-steps">
+<li><div class="step-card-header"><span class="step-pill">01</span></div><div>
+<h3>Installeer twee hulpprogramma's</h3>
+<p>Open het Windows Startmenu, typ <kbd>PowerShell</kbd> en open het programma. Kopieer de volgende regels één voor één en druk voor elke regel op Enter. Wacht na elke regel totdat de installatie is voltooid.</p>
+<div class="code-card"><div class="code-card-head"><span>PowerShell</span></div><div class="command-row"><pre id="requirements-code"><code>winget install --id Python.Python.3.11 --exact --source winget</code></pre><button class="copy-button" data-copy="requirements-code" type="button"><span data-copy-label="">Kopieer</span></button></div><div class="command-row"><pre id="requirements-code-1"><code>winget install --id Gyan.FFmpeg --exact --source winget</code></pre><button class="copy-button" data-copy="requirements-code-1" type="button"><span data-copy-label="">Kopieer</span></button></div></div>
+<p>Python voert LinguoAI uit. FFmpeg leest en schrijft video's. Als Windows om bevestiging vraagt, controleer dan of deze bij deze installatie hoort.</p>
+<p class="step-result">Klaar? Beide installaties melden succes of “reeds geïnstalleerd”. Sluit nu PowerShell.</p>
+</div></li>
+<li><div class="step-card-header"><span class="step-pill">02</span></div><div>
+<h3>Download en pak LinguoAI uit</h3>
+<p>Download het ZIP-bestand. Klik er met de rechtermuisknop op in de downloadmap en selecteer 'Alles uitpakken'. Open vervolgens de uitgepakte map.</p>
+<p><a class="button button-secondary" download="" href="/downloads/LinguoAI-2.2.2-source.zip">Download LinguoAI 2.2.2 ↓</a></p>
+<p class="step-result">Je hebt gelijk als je het bestand hebt <code>pyproject.toml</code> en de map <code>linguoai</code> zie.</p>
+</div></li>
+<li><div class="step-card-header"><span class="step-pill">03</span></div><div>
+<h3>Begin in de juiste map</h3>
+<p>Klik in de geopende map in de adresbalk bovenaan. Typ <kbd>powershell</kbd> en druk op Enter. Er wordt een nieuw venster geopend. Kopieer deze drie controleregels afzonderlijk:</p>
+<div class="code-card"><div class="code-card-head"><span>PowerShell</span></div><div class="command-row"><pre id="check-code"><code>py -3.11 --version</code></pre><button class="copy-button" data-copy="check-code" type="button"><span data-copy-label="">Kopieer</span></button></div><div class="command-row"><pre id="check-code-1"><code>ffmpeg -version</code></pre><button class="copy-button" data-copy="check-code-1" type="button"><span data-copy-label="">Kopieer</span></button></div><div class="command-row"><pre id="check-code-2"><code>ffprobe -version</code></pre><button class="copy-button" data-copy="check-code-2" type="button"><span data-copy-label="">Kopieer</span></button></div></div>
+<p class="step-result">U ziet Python 3.11 en twee versiedisplays. Als er 'niet gevonden' staat, gebruik dan de onderstaande hulp voordat u verdergaat.</p>
+</div></li>
+<li><div class="step-card-header"><span class="step-pill">04</span></div><div>
+<h3>LinguoAI instellen</h3>
+<p>Blijf in dit venster. Kopieer elke regel afzonderlijk en druk op Enter. Wacht tot je weer iets kunt invoeren. Grotere bestanden worden de eerste keer geladen.</p>
+<div class="code-card"><div class="code-card-head"><span>PowerShell</span></div><div class="command-row"><pre id="desktop-code"><code>py -3.11 -m venv .venv</code></pre><button class="copy-button" data-copy="desktop-code" type="button"><span data-copy-label="">Kopieer</span></button></div><div class="command-row"><pre id="desktop-code-1"><code>.\.venv\Scripts\python.exe -m pip install --upgrade pip</code></pre><button class="copy-button" data-copy="desktop-code-1" type="button"><span data-copy-label="">Kopieer</span></button></div><div class="command-row"><pre id="desktop-code-2"><code>.\.venv\Scripts\python.exe -m pip install torch --index-url https://download.pytorch.org/whl/cpu</code></pre><button class="copy-button" data-copy="desktop-code-2" type="button"><span data-copy-label="">Kopieer</span></button></div><div class="command-row"><pre id="desktop-code-3"><code>.\.venv\Scripts\python.exe -m pip install -e ".[desktop]"</code></pre><button class="copy-button" data-copy="desktop-code-3" type="button"><span data-copy-label="">Kopieer</span></button></div></div>
+<p class="step-result">Voltooid zonder foutmelding? Dan is de installatie voltooid. Je hebt ze maar één keer nodig.</p>
+</div></li>
+<li><div class="step-card-header"><span class="step-pill">05</span></div><div>
+<h3>Programma openen</h3>
+<p>Kopieer deze regel naar hetzelfde venster:</p>
+<div class="code-card"><div class="code-card-head"><span>PowerShell</span></div><div class="command-row"><pre id="launch-code"><code>.\.venv\Scripts\python.exe -m linguoai</code></pre><button class="copy-button" data-copy="launch-code" type="button"><span data-copy-label="">Kopieer</span></button></div></div>
+<p class="step-result">Het LinguoAI-venster wordt geopend. Houd de PowerShell open zolang u LinguoAI gebruikt.</p>
+</div></li>
+</ol>
+</section>
+<section aria-labelledby="first-video-title" class="guide-section" id="erstes-video">
+<p class="section-kicker">Probeer het nu</p><h2 id="first-video-title">Je eerste vertaalde video</h2>
+<p>Maak eerst een korte video met duidelijk gesproken taal, bijvoorbeeld 30 seconden.</p>
+<ol class="plain-steps">
+<li>Onder <span data-i18n-ignore="">„Start“</span> op <span data-i18n-ignore="">„Datei …“</span> klik en selecteer uw video.</li>
+<li>Degene die jij wilt <span data-i18n-ignore="">„Zielsprache“</span> kiezen. De brontaal kan automatisch worden herkend.</li>
+<li>Voor deze eerste test selecteert u “Google Translate · online” en “Edge TTS · online”.</li>
+<li>Open “Geavanceerd” → “Prestaties”. Selecteer onder 'Hardware voor spraakherkenning' de optie 'Alleen CPU'. Schakel vervolgens terug naar “Start”. De overige instellingen kunt u laten staan.</li>
+<li>Op <span data-i18n-ignore="">„Verarbeitung starten“</span> klik. De eerste keer laadt LinguoAI ook het spraakherkenningsmodel. Dit kan enige tijd duren.</li>
+<li>Bij <span data-i18n-ignore="">„FERTIG“</span> op <span data-i18n-ignore="">„Video öffnen“</span> klik. Over <span data-i18n-ignore="">„Ordner öffnen“</span> je vindt de video en de twee ondertitelbestanden.</li>
+</ol>
+<aside class="guide-note"><strong>Goed om te weten</strong><p>In deze eenvoudige test ontvangen Google en Microsoft tekst voor vertaling en spraak. De nieuwe stem vervangt al het voorgaande geluid, inclusief muziek. Uw originele bestand blijft intact.</p></aside>
+</section>
+<section aria-labelledby="setup-help-title" class="guide-section" id="installationshilfe">
+<h2 id="setup-help-title">Als je vastloopt</h2>
+<details class="guide-detail"><summary>Hoe open ik LinguoAI de volgende keer?</summary><div><p>Open uw uitgepakte LinguoAI-map opnieuw. Tik bovenaan in de adresbalk <kbd>powershell</kbd>. Voer gewoon de opdracht uit stap 5 uit. U hoeft de installatie niet te herhalen.</p></div></details>
+<details class="guide-detail"><summary>“vleugelet” wordt niet gevonden</summary><div><p>Installeer of update Microsoft App Installer vanuit de Microsoft Store. Open vervolgens de PowerShell opnieuw en herhaal stap 1.</p><a class="text-link" href="https://learn.microsoft.com/de-de/windows/package-manager/winget/" rel="noopener noreferrer" target="_blank">Open Microsoft-instructies ↗</a></div></details>
+<details class="guide-detail"><summary>Python of FFmpeg is niet gevonden</summary><div><p>Sluit PowerShell en open het opnieuw zoals in stap 3. Als dat niet werkt, start u de pc opnieuw op en controleert u de drie regels opnieuw. Voor deze handleiding moet Python 3.11 zijn geïnstalleerd.</p></div></details>
+<details class="guide-detail"><summary>Een opdracht meldt een fout</summary><div><p>Voer de volgende regel nog niet uit. Controleer eerst of u zich in de uitgepakte map bevindt <code>pyproject.toml</code> en je hebt de hele regel gekopieerd. Bewaar de exacte fouttekst als u hulp nodig heeft.</p></div></details>
+<details class="guide-detail"><summary>Het duurt lang of de video wordt niet voltooid</summary><div><p>Wanneer u voor het eerst start, worden modellen gedownload. Laat het venster open en controleer of de voortgang doorgaat. Als LinguoAI een fout vertoont, lees dan het bericht in het logboek. Test dan eerst een kortere video.</p></div></details>
+</section>
+<details class="guide-detail guide-advanced" id="mehr-optionen"><summary>Andere opties: Linux, lokale stemmen en meer</summary><div>
+<details class="guide-detail">
+<summary>Linux</summary>
+<div>
+<p>Python 3.10+ en FFmpeg vereist</p>
+<pre><code># FFmpeg, ffprobe und Tkinter über die Paketverwaltung installieren.
+# Im entpackten Projektordner:
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+python -m pip install -e ".[desktop]"
+ffmpeg -version
+ffprobe -version
+python -m linguoai</code></pre>
+</div>
+</details>
+<section aria-labelledby="voices-title" class="guide-section" id="stimmen">
+<p class="section-kicker">Vier manieren om een voicetrack te krijgen</p>
+<h2 id="voices-title">Vergelijk stemmen</h2>
+<p>‘Eigen stem’ kan verschillende dingen betekenen. Deze vergelijking helpt u bij het maken van de juiste keuze.</p>
+<div class="guide-engine-grid">
+<article><h3>Edge TTS</h3><p>De gemakkelijke manier om aan de slag te gaan met kant-en-klare stemmen uit de Microsoft-catalogus.</p><p><strong>Online</strong> · <span>Nee, catalogusstem</span></p></article>
+<article><h3>gTTS</h3><p>Snelle Google Voice via Google Translate Tekst-naar-spraak met spraakcode.</p><p><strong>Online</strong> · <span>Nee, taalcode</span></p></article>
+<article><h3>Piper</h3><p>Snelle lokale output met een bestaand of zelfgetraind ONNX-model.</p><p><strong>Lokaal</strong> · <span>CPU, optionele CUDA</span></p></article>
+<article><h3>Chatterbox V2</h3><p>Neemt het vocale karakter en de manier van spreken over van een korte, zuivere opname.</p><p><strong>Referentiestem</strong> · <span>GPU aanbevolen</span></p></article>
+</div>
+<details class="guide-detail">
+<summary>Voeg Piper lokaal toe</summary>
+<div>
+<p>Installeer in dezelfde virtuele omgeving en laad vervolgens een geschikte stem:</p>
+<pre><code>.\.venv\Scripts\python.exe -m pip install -e ".[desktop,piper]"
+New-Item -ItemType Directory -Force ".\Stimmen"
+.\.venv\Scripts\python.exe -m piper.download_voices --download-dir ".\Stimmen" de_DE-thorsten-medium</code></pre>
+<p>Piper: ONNX plus bijpassende JSON, optionele luidspreker-ID en instelbare spreeksnelheid.</p>
+</div>
+</details>
+<details class="guide-detail">
+<summary>Eigen referentiestem met Chatterbox</summary>
+<div>
+<p>Vanwege de afhankelijkheden van audio/toorts wordt een speciale Python-3.11-omgeving aanbevolen:</p>
+<pre><code>py -3.11 -m venv .venv-chatterbox
+.\.venv-chatterbox\Scripts\python.exe -m pip install --upgrade pip
+.\.venv-chatterbox\Scripts\python.exe -m pip install -e ".[desktop,voice-clone]"
+.\.venv-chatterbox\Scripts\python.exe -m linguoai</code></pre>
+<ul>
+<li>6-10 seconden, één persoon, weinig galm, geen muziek of achtergrondgeluid.</li>
+<li>Modeldownload van ongeveer 3,7 GB; CPU is mogelijk, maar erg traag voor langere video's.</li>
+<li>De native installatie is experimenteel; Colab of Linux is betrouwbaarder bij problemen met audiopakketten.</li>
+</ul>
+</div>
+</details>
+<aside class="guide-note">
+<strong>Gebruik je stem op een verantwoorde manier</strong>
+<p>Voor Chatterbox is bevestiging dat u de stem kunt gebruiken verplicht. Gebruik uw eigen opname of vraag expliciete toestemming. De uitvoer bevat ook een ingesloten PerTh-watermerk.</p>
+<p>Referentiestemmen bevatten biometrisch gevoelige kenmerken. De bevestiging in LinguoAI vervangt de toestemming niet; Piper-engine en spraakmodel kunnen ook afzonderlijke licenties hebben.</p>
+</aside>
+</section>
+<section aria-labelledby="cli-title" class="guide-section" id="cli">
+<p class="section-kicker">Voor herhaalbare processen</p>
+<h2 id="cli-title">Commandoregel</h2>
+<p>Dit voorbeeld wordt lokaal vertaald naar NLLB en gebruikt een Piper-model. Voor automatisering zijn dezelfde instellingen beschikbaar als in de GUI.</p>
+<p>Eigen uitvoer- en modelpaden</p>
+<div class="code-card">
+<div class="code-card-head">
+<span>PowerShell · Piper lokaal</span>
+<button class="copy-button" data-copy="cli-code" type="button"><span aria-hidden="true" class="copy-icon">⧉</span><span data-copy-label="">Kopieer</span></button>
+</div>
+<pre id="cli-code"><code>.\.venv\Scripts\python.exe -m linguoai `
+  --input "C:\Videos\quelle.mp4" `
+  --output "C:\Videos\quelle.de.mp4" `
+  --language de `
+  --service nllb `
+  --device cpu `
+  --nllb-device cpu `
+  --tts-engine piper `
+  --tts-device cpu `
+  --piper-model "C:\Stimmen\de_DE-thorsten-medium.onnx" `
+  --piper-config "C:\Stimmen\de_DE-thorsten-medium.onnx.json"</code></pre>
+<p class="code-note">Bekijk alle opties: <code>.\.venv\Scripts\python.exe -m linguoai --help</code></p>
+</div>
+<details class="guide-detail">
+<summary>Python-Wheel</summary>
+<div>
+<p>Het kant-en-klare pakket voor een bestaande Python-omgeving; FFmpeg is nog steeds vereist.</p>
+<p><a class="text-link" download="" href="/downloads/linguoai-2.2.2-py3-none-any.whl">Laad Wheel ↓</a></p>
+<pre><code>python -m pip install ".\linguoai-2.2.2-py3-none-any.whl[desktop]"
+python -m linguoai</code></pre>
+</div>
+</details>
+</section>
+<section aria-labelledby="hardware-title" class="guide-section" id="hardware">
+<p class="section-kicker">Verdeel de rekenkracht op een verstandige manier</p>
+<h2 id="hardware-title">CPU en GPU zijn geen alles-of-niets-beslissing.</h2>
+<p>Whisper, NLLB en de lokale stem kunnen afzonderlijk worden geplaatst. Je kunt dus klein beginnen en alleen dat onderdeel op de GPU zetten dat er echt baat bij heeft.</p>
+<p>“Automatisch” controleert CUDA en valt anders terug op CPU.</p>
+<details class="guide-detail">
+<summary>Belangrijk: Als u “GPU” selecteert, wordt CUDA niet automatisch geïnstalleerd.</summary>
+<div>
+<ul>
+<li><strong>NLLB en Chatterbox</strong><p>Een bijpassende CUDA-editie van PyTorch nodig.</p><a href="https://pytorch.org/get-started/locally/" rel="noopener noreferrer" target="_blank">PyTorch-selectie ↗</a></li>
+<li><strong>Faster-Whisper</strong><p>Vereist bovendien CUDA-12-cuBLAS en cuDNN 9 in het systeempad.</p></li>
+<li><strong>Piper</strong><p>Gebruikt ONNX Runtime: <code>onnxruntime-gpu</code> installeren in plaats van de CPU-editie.</p></li>
+</ul>
+</div>
+</details>
+</section>
+<section aria-labelledby="asr-title" class="guide-section" id="spracherkennung">
+<p class="section-kicker">Optioneel sneller op de CPU</p>
+<h2 id="asr-title">Parkiet of Whisper?</h2>
+<div class="guide-engine-grid">
+<article><h3>Parkiet · 25 talen</h3><p>NVIDIA Parakeet v3 herkent 25 Europese talen. De optionele sherpa-onnx-adapter werkt lokaal op de CPU met standaard vier schroefdraden.</p><p><a href="https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3">NVIDIA-modelkaart ↗</a></p></article>
+<article><h3>Whisper · veelzijdig</h3><p>Faster-Whisper blijft de standaard met automatische spraakherkenning, ruimere taalselectie en CPU- of GPU-verwerking.</p><p><a href="https://github.com/SYSTRAN/faster-whisper">Faster-Whisper ↗</a></p></article>
+</div>
+<p>De primeline fine tune is gespecialiseerd in het Duits. Selecteer hiervoor het Duitse profiel met een geschikte ONNX-export; voor meerdere Europese talen het NVIDIA profiel. Een snelheids- of kwaliteitsvoordeel is niet gegarandeerd zonder het te vergelijken met uw bestanden.</p>
+<details class="guide-detail">
+<summary>Parkiet opzetten</summary>
+<div>
+<p>Installeer het optionele pakket en zorg voor een compatibele modelmap. Een model wordt niet automatisch gedownload.</p>
+<pre><code>.\.venv\Scripts\python.exe -m pip install -e ".[parakeet]"
+.\.venv\Scripts\python.exe -m linguoai --help</code></pre>
+<p>Gebruik de volledige sherpa-onnx-modelmap met encoder, decoder, joiner en tokenbestand. Bewaar bij het exporteren naar het Duits ook het externe encoderbestand als dit bij het model hoort.</p>
+<p>Selecteer in Desktop en Colab de map voor spraakherkenning, profiel en model. Geef de brontaal expliciet op, zodat de vertaling de juiste taalcode krijgt. Parkiet getranscribeerd; de geselecteerde vertaling en stem volgen daarna.</p>
+<p><a href="https://k2-fsa.github.io/sherpa/onnx/pretrained_models/offline-transducer/nemo-transducer-models.html">sherpa-onnx-modellen en opstelling ↗</a> · <a href="https://huggingface.co/primeline/parakeet-primeline">primeline-modelkaart ↗</a></p>
+</div>
+</details>
+</section>
+<section aria-labelledby="web-title" class="guide-section" id="webversion">
+<p class="section-kicker">Uploaden → Verwerken → Downloaden</p>
+<h2 id="web-title">Werk in de browser.</h2>
+<h3>Videostudio</h3>
+<p>Voor gebruikers die studiotoegang hebben gekregen. Log in en upload video's rechtstreeks in de browser.</p>
+<p>Verwerking op de server. Vertaling nog steeds beperkt; volledige proces nog niet bevestigd.</p>
+<p>Geen Google-account vereist. Zonder studiotoegang kun je kiezen voor Google Colab of de desktopversie.</p>
+<div class="guide-actions"><a class="button button-secondary" href="/web.html">Open Videostudio <span aria-hidden="true">→</span></a><a class="text-link" href="/nl/#versionen">Zoek versie <span aria-hidden="true">→</span></a></div>
+<h3>Google Colab</h3>
+<p>De Colab-webinterface accepteert al uploads en Google Drive-bestandspaden. Het verwerkt de video's op de draaiende Colab-machine en biedt video en ondertitels om te downloaden. Resultaten kunnen ook in uw schijf worden opgeslagen.</p>
+<div class="guide-actions"><a class="text-link" href="/nl/colab.html">Open de Colab-handleiding <span aria-hidden="true">→</span></a><a class="text-link" data-colab-start="" href="https://colab.research.google.com/github/riemenschneider2015-svg/linguoai-de/blob/main/notebooks/LinguoAI_Colab.ipynb">Open Notebook rechtstreeks <span aria-hidden="true">↗</span></a></div>
+</section>
+<section aria-labelledby="details-title" class="guide-section" id="details">
+<p class="section-kicker">De complete gereedschapskist</p>
+<h2 id="details-title">Alle functies in detail.</h2>
+<details class="guide-detail">
+<summary>Bestanden en bestellingen</summary>
+<div>
+<ul>
+<li>Verwerk een enkele video of alle video's die rechtstreeks in een map staan.</li>
+<li>Ingangen: MP4, MKV, MOV, AVI, WEBM en M4V; Uitvoeringen: MP4, MKV of MOV.</li>
+<li>Automatische uitvoersuggestie, botsingsvrije namen en gecontroleerd overschrijven.</li>
+<li>Voortgang per bestand, huidige werkstap, annulering en technisch logboek.</li>
+<li>Enkelvoudige en batchverwerking: upload meerdere video's of voer MyDrive-bestandspaden in, één per regel. Piper-bestanden en referentie-opname via upload of MyDrive-pad.</li>
+</ul>
+</div>
+</details>
+<details class="guide-detail">
+<summary>Transcriptie met Faster-Whisper</summary>
+<div><ul>
+<li>Modellen van <code>tiny</code> tot <code>large-v3</code>, bovendien eigen modelwaarden.</li>
+<li>De brontaal automatisch detecteren of instellen als taalcode.</li>
+<li>CPU, NVIDIA-CUDA of automatische selectie; int8, float16 en float32 configureerbaar.</li>
+<li>Overlappende audiosecties, echte tijdverschuivingen en het opruimen van dubbele segmenten.</li>
+<li>Bloklengtes, overlap en werknemernummer via geavanceerde opties of CLI.</li>
+</ul></div>
+</details>
+<details class="guide-detail">
+<summary>Vertaal- en tekstbeveiliging</summary>
+<div>
+<ul>
+<li>NLLB-200 lokaal, Google Translate zonder sleutel, DeepL-SDK of Gemini.</li>
+<li>Optionele terugval alleen na expliciete selectie - anders wordt er slechts met één aanbieder contact opgenomen.</li>
+<li>URL's, e-mailadressen, valuta's, eenheden en percentages zijn beschermd tijdens de vertaling.</li>
+<li>Time-outs, beperkte herhalingen en cache voor identieke tekstsecties.</li>
+<li>Optioneel corrigeert Gemini het Whisper-transcript zonder de segment-ID's of tijden te wijzigen.</li>
+<li>Eigen NLLB-compatibele modellen, vaste revisies, FLORES-codes, batch- en tokenlimieten.</li>
+</ul>
+<p>Het standaard NLLB-600M-model valt onder CC-BY-NC-4.0, is een onderzoeksmodel en geen gecertificeerde productievertaling. Controleer altijd de resultaten.</p>
+</div>
+</details>
+<details class="guide-detail">
+<summary>Timing, toon en export</summary>
+<div><ul>
+<li>Normaliseer elke clip naar 48 kHz mono PCM en positioneer deze met monsternauwkeurigheid.</li>
+<li>Versnel spraak die te lang is, binnen een configureerbare limiet.</li>
+<li>Waarschuwing bij snel accelereren; gecontroleerde fout in plaats van onbegrijpelijke output.</li>
+<li>Exacte eindduur, overgenomen metadata/hoofdstukken en indien mogelijk ongewijzigde videostream.</li>
+<li>Atomaire resultaatgroep uit nieuwe video, originele SRT en vertaling SRT.</li>
+</ul></div>
+</details>
+<details class="guide-detail">
+<summary>Waar uw gegevens worden verwerkt</summary>
+<div>
+<ul>
+<li><strong>NLLB · Piper · Chatterbox</strong><p>Na het downloaden in de door u gekozen termijn. In Colab betekent dit binnen de tijdelijke Google-VM.</p></li>
+<li><strong>Google · DeepL · Gemini</strong><p>Ontvang alleen tekstsecties wanneer geselecteerd of als expliciet geactiveerde fallback.</p></li>
+<li><strong>Edge TTS · gTTS</strong><p>Stuur elke vertaalde cue die moet worden nagesynchroniseerd naar de betreffende online taaldienst.</p></li>
+<li>Beveiligde Gradio-webinterface met willekeurig wachtwoord per sessie.</li>
+<li>Optionele modelcache en atomaire resultaatkopie in Google Drive.</li>
+<li>Oprijpaden blijven binnen MyDrive; Drive wordt niet gedeeld als openbare downloadmap.</li>
+</ul>
+<p>Tijdelijke resultaten worden pas gepubliceerd nadat de video is voltooid en beide ondertitels zijn voltooid. Afbreken, beperkte nieuwe pogingen, beveiligde bestemmingspaden en geredigeerde API-sleutels voorkomen onaangename verrassingen.</p>
+</div>
+</details>
+<aside class="guide-note">
+<h3>Wat LinguoAI bewust niet belooft</h3>
+<ul>
+<li>Synchrone timing is geen synchronisatie van lipbewegingen; het beeld is niet veranderd.</li>
+<li>De nieuwe voicetrack vervangt het originele geluid volledig. Muziek, sfeer en geluiden worden momenteel niet overgenomen.</li>
+<li>Geen luidsprekerherkenning en geen automatische toewijzing van meerdere luidsprekers.</li>
+<li>Controleer altijd de transcriptie, vertaling, uitspraak en stemovereenkomst voordat u deze publiceert.</li>
+<li>Colab-GPU, sessieduur en voltooiing van grote opdrachten kunnen niet worden gegarandeerd.</li>
+</ul>
+</aside>
+</section>
+<section aria-labelledby="cloudflare-title" class="guide-section" id="cloudflare">
+<p class="section-kicker">OPTIONEEL</p>
+<h2 id="cloudflare-title">Eigen adres bij Cloudflare Tunnel.</h2>
+<p>Met SHARE_PROVIDER = "gradio" ontvangt u automatisch een dynamische link. Google Drive is optioneel.</p>
+<details class="guide-detail">
+<summary>Cloudflare optioneel</summary>
+<div>
+<p>Alleen voor uw eigen vaste adres: zet een benoemde Cloudflare-tunnel op met uw eigen domein en de service http://127.0.0.1:7860. Dit is geen openbaar geïmplementeerde LinguoAI-server.</p>
+<p>Stel in de Notebook SHARE_PROVIDER in op "cloudflare", vul CLOUDFLARE_TUNNEL_HOSTNAME met uw eigen hostnaam en sla CLOUDFLARE_TUNNEL_TOKEN op als Colab Secret. Publiceer nooit tokens.</p>
+<p>Cloudflare: standaard 95 MB per upload. Gradio: tot 5 GB per bestand. Gebruik voor grote video's Google Drive. Tijdelijke trycloudflare.com-links worden niet gebruikt vanwege een gebrek aan SSE-ondersteuning.</p>
+</div>
+</details>
+<p><a class="text-link" href="/nl/colab.html">Open de Colab-handleiding <span aria-hidden="true">→</span></a></p>
+</section>
+</div></details>
+</main>
+<footer class="site-footer">
+<div class="container footer-main">
+<div class="footer-brand">
+<a class="brand" href="/nl/">
+<img alt="" height="34" src="/assets/logo-mark.svg" width="34"/><span>LinguoAI</span>
+</a>
+<p>Video's vertalen, opnieuw nasynchroniseren en ondertitelen.</p>
+</div>
+<div class="footer-links">
+<div>
+<strong>Begin</strong>
+<a href="/nl/">Naar de startpagina</a>
+<a href="/nl/#versionen">Zoek versie</a>
+<a href="/nl/colab.html">Colab-instructies</a>
+<a href="/nl/anleitung.html#desktop">Lokaal installeren</a>
+<a href="/web.html">Videostudio</a>
+<a href="/nl/#downloads">Downloads</a>
+</div>
+<div>
+<strong>Meer informatie</strong>
+<a href="/nl/anleitung.html">Gedetailleerde instructies</a>
+<a href="/nl/#fragen">Hulp</a>
+<a href="https://github.com/riemenschneider2015-svg/linguoai-de">GitHub</a>
+</div>
+<div>
+<strong>Legaal</strong>
+<a href="/impressum.html">Afdruk</a>
+<a href="/datenschutz.html">Gegevensbescherming</a>
+<a href="/drive-datenschutz.html">Gegevensbescherming van de aandrijfverbinding</a>
+</div>
+</div>
+</div>
+<div class="container footer-bottom">
+<span>© <span data-current-year="">2026</span> LinguoAI</span>
+<span>Zonder tracker. Zonder externe weblettertypen.</span>
+<div class="footer-locales" data-i18n-ignore="">
+<a href="/nl/" hreflang="de" lang="de">DE</a> ·
+          <a href="/en/" hreflang="en" lang="en">EN</a> ·
+          <a href="/ru/" hreflang="ru" lang="ru">RU</a> ·
+          <a href="/uk/" hreflang="uk" lang="uk">UK</a> ·
+          <a href="/tr/" hreflang="tr" lang="tr">TR</a> ·
+          <a href="/es/" hreflang="es" lang="es">ES</a> ·
+          <a href="/it/" hreflang="it" lang="it">IT</a>
+<a href="/fr/" hreflang="fr" lang="fr">FR</a>
+<a href="/pt/" hreflang="pt" lang="pt">PT</a>
+<a href="/pl/" hreflang="pl" lang="pl">PL</a>
+<a href="/nl/" hreflang="nl" lang="nl">NL</a>
+</div>
+</div>
+</footer>
+</body>
+</html>

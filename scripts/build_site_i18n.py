@@ -35,6 +35,10 @@ LOCALES = {
     "tr": {"name": "Türkçe", "og": "tr_TR"},
     "es": {"name": "Español", "og": "es_ES"},
     "it": {"name": "Italiano", "og": "it_IT"},
+    "fr": {"name": "Français", "og": "fr_FR"},
+    "pt": {"name": "Português", "og": "pt_PT"},
+    "pl": {"name": "Polski", "og": "pl_PL"},
+    "nl": {"name": "Nederlands", "og": "nl_NL"},
 }
 
 SKIP_TAGS = {"script", "style", "code", "pre", "kbd", "samp", "svg"}

@@ -13,7 +13,7 @@ WEBSITE = ROOT / "website"
 if not WEBSITE.is_dir():
     WEBSITE = ROOT
 HAS_WEBSITE = (WEBSITE / "index.html").is_file()
-SUPPORTED_LOCALES = ("de", "en", "ru", "uk", "tr", "es", "it")
+SUPPORTED_LOCALES = ("de", "en", "ru", "uk", "tr", "es", "it", "fr", "pt", "pl", "nl")
 LOCALIZED_PAGE_NAMES = ("index.html", "colab.html", "anleitung.html")
 CANONICAL_ORIGIN = "https://linguoai.de"
 COLAB_NOTEBOOK_URL = (
@@ -168,7 +168,7 @@ class WebsiteTests(unittest.TestCase):
                     self.assertEqual(parser.html_language, locale)
                     self.assertEqual(parser.h1_count, 1)
                     self.assertEqual(parser.canonical_urls, [expected_canonical])
-                    self.assertEqual(len(parser.alternate_languages), 8)
+                    self.assertEqual(len(parser.alternate_languages), len(SUPPORTED_LOCALES) + 1)
 
                     alternates: dict[str, str] = {}
                     for language, url in parser.alternate_languages:
@@ -354,7 +354,9 @@ class WebsiteTests(unittest.TestCase):
             self.assertTrue(any(name.endswith(".dist-info/METADATA") for name in wheel_names))
             for path in (ROOT / "linguoai").rglob("*.py"):
                 name = path.relative_to(ROOT).as_posix()
-                self.assertEqual(wheel.read(name), path.read_bytes(), name)
+                # Git and the wheel builder can use different platform line endings.
+                archived = wheel.read(name).replace(b"\r\n", b"\n")
+                self.assertEqual(archived, path.read_bytes().replace(b"\r\n", b"\n"), name)
 
     def test_download_checksums_match_artifacts(self) -> None:
         downloads = WEBSITE / "downloads"

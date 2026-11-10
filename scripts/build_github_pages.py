@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_BASE_URL = "https://riemenschneider2015-svg.github.io/linguoai-de/"
-LOCALES = ("de", "en", "ru", "uk", "tr", "es", "it")
+LOCALES = ("de", "en", "ru", "uk", "tr", "es", "it", "fr", "pt", "pl", "nl")
 PRODUCT_PAGES = ("index.html", "colab.html", "anleitung.html")
 PUBLIC_PAGES = (
     *PRODUCT_PAGES,
