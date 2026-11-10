@@ -43,8 +43,14 @@
     const choices = [...controls.querySelectorAll('input[name="version-need"]')];
     const cards = [...finder.querySelectorAll("[data-version]")];
     const grid = finder.querySelector(".version-grid");
+    const start = finder.querySelector("#versionen");
     const result = finder.querySelector("[data-version-result]");
     result.classList.add("sr-only");
+    controls.hidden = false;
+    const alignFinder = (behavior = "auto") => {
+      start.scrollIntoView({ block: "start", behavior });
+    };
+    const selectionHash = (value) => value === "all" ? "#versionen" : `#version-${value}`;
 
     const showVersion = (value, announce = true) => {
       const selected = cards.find((card) => card.dataset.version === value);
@@ -65,41 +71,31 @@
       const hash = window.location.hash;
       const card = cards.find((item) => `#${item.id}` === hash);
       showVersion(card?.dataset.version || "all", false);
-      // Filtering and font loading change positions before native fragment scrolling.
-      if (!event?.persisted) {
-        if (card) {
-          const alignCard = () => card.scrollIntoView({ block: "start", behavior: "instant" });
-          if (document.fonts?.ready) document.fonts.ready.then(alignCard);
-          else window.requestAnimationFrame(alignCard);
-        } else if (hash === "#versionen") {
-          const target = document.getElementById("versionen");
-          if (target) {
-            const alignTarget = () => target.scrollIntoView({ block: "start", behavior: "instant" });
-            if (document.fonts?.ready) document.fonts.ready.then(alignTarget);
-            else window.requestAnimationFrame(alignTarget);
-          }
-        }
+      // Deep links keep their selection and land above the filters.
+      if (!event?.persisted && (card || hash === "#versionen")) {
+        const align = () => {
+          if (window.location.hash === hash) alignFinder("instant");
+        };
+        if (document.fonts?.ready) document.fonts.ready.then(align);
+        else window.requestAnimationFrame(align);
       }
     };
-    document.querySelectorAll('a[href$="#versionen"], a[href*="#versionen"]').forEach((link) => {
+    const pagePath = (url) => url.pathname.replace(/\/index\.html$/, "/");
+    document.querySelectorAll('a[href$="#versionen"]').forEach((link) => {
       link.addEventListener("click", (event) => {
-        const rawHref = link.getAttribute("href") || "";
-        const hashIndex = rawHref.indexOf("#");
-        if (hashIndex === -1) return;
-        const targetHash = rawHref.slice(hashIndex);
-        if (targetHash !== "#versionen") return;
-        const targetPath = rawHref.slice(0, hashIndex);
-        const currentPath = window.location.pathname;
-        if (!targetPath || targetPath === currentPath || targetPath === "/" || targetPath.endsWith(currentPath)) {
-          const target = document.getElementById("versionen");
-          if (target) {
-            event.preventDefault();
-            try {
-              window.history.pushState(null, "", rawHref);
-            } catch (_e) {}
-            target.scrollIntoView({ behavior: "smooth", block: "start" });
-          }
+        if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey
+          || event.shiftKey || event.altKey || (link.target && link.target !== "_self")) return;
+        const target = new URL(link.href);
+        const current = new URL(window.location.href);
+        if (target.origin !== current.origin || pagePath(target) !== pagePath(current)) return;
+
+        event.preventDefault();
+        showVersion("all");
+        if (current.hash !== "#versionen") {
+          try { window.history.pushState(null, "", "#versionen"); } catch (_error) {}
         }
+        // Wait until the mobile menu has closed and released the scroll lock.
+        window.requestAnimationFrame(() => alignFinder());
       });
     });
     controls.addEventListener("change", (event) => {
@@ -107,16 +103,20 @@
       const value = event.target.value;
       showVersion(value);
       try {
-        const hash = value === "all" ? "#versionen" : `#version-${value}`;
-        window.history.replaceState(null, "", hash);
+        window.history.replaceState(null, "", selectionHash(value));
       } catch (_error) {
         // Selection still works when browser history access is restricted.
+      }
+      alignFinder();
+    });
+    controls.addEventListener("click", (event) => {
+      if (choices.includes(event.target) && window.location.hash === selectionHash(event.target.value)) {
+        alignFinder();
       }
     });
     window.addEventListener("hashchange", readHash);
     window.addEventListener("pageshow", readHash);
     readHash();
-    controls.hidden = false;
   }
 
   const locale = document.documentElement.lang.split("-")[0].toLowerCase();

@@ -102,7 +102,8 @@ body.editorial{margin:0;background:var(--paper);color:var(--ink);font:16px/1.65 
 .editorial .version-options span{display:flex;align-items:center;gap:.35rem;min-height:46px;padding:.65rem 1rem;border:1px solid var(--line-strong);border-radius:6px;background:var(--surface);color:var(--muted);font-size:.78rem;font-weight:600;line-height:1.5}
 .editorial .version-options span:hover{border-color:var(--brand)}
 .editorial .version-options input:checked+span{color:var(--brand);border-color:var(--brand);background:var(--brand-soft)}
-.editorial .version-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem;scroll-margin-top:.5rem}
+.editorial #versionen{scroll-margin-top:.5rem}
+.editorial .version-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem}
 .editorial .version-card,.editorial .version-card.is-selected{position:relative;display:flex;flex-direction:column;min-width:0;padding:1.25rem;border:1px solid var(--line);border-radius:9px;background:var(--surface);box-shadow:none;transform:none}
 .editorial .version-card.is-primary{border-top:3px solid var(--brand);padding-top:calc(1.25rem - 2px)}
 .editorial .version-card-top{display:flex;align-items:center;justify-content:space-between;gap:.75rem;min-height:32px;margin-bottom:.75rem}

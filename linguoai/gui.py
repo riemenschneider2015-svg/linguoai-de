@@ -373,7 +373,7 @@ class LinguoAIApp:
         self._build_progress_card(right)
 
     def _build_path_card(self, parent: ttk.Frame) -> None:
-        card = ttk.LabelFrame(parent, text="01  Video und Ausgabe", padding=12)
+        card = ttk.Labelframe(parent, text="01  Video und Ausgabe", padding=12)
         card.grid(row=0, column=0, sticky="ew", pady=(0, 9))
         card.columnconfigure(0, weight=1)
 
@@ -419,7 +419,7 @@ class LinguoAIApp:
             self._register(widget, state)
 
     def _build_language_card(self, parent: ttk.Frame) -> None:
-        card = ttk.LabelFrame(parent, text="02  Sprache und Übersetzung", padding=12)
+        card = ttk.Labelframe(parent, text="02  Sprache und Übersetzung", padding=12)
         card.grid(row=1, column=0, sticky="ew", pady=(0, 9))
         card.columnconfigure(0, weight=1)
         card.columnconfigure(1, weight=1)
@@ -462,7 +462,7 @@ class LinguoAIApp:
         self._register(self.service_combo, "readonly")
 
     def _build_voice_card(self, parent: ttk.Frame) -> None:
-        card = ttk.LabelFrame(parent, text="03  Erkennung und Stimme", padding=12)
+        card = ttk.Labelframe(parent, text="03  Erkennung und Stimme", padding=12)
         card.grid(row=2, column=0, sticky="ew")
         card.columnconfigure(0, weight=1)
         card.columnconfigure(1, weight=1)
@@ -577,7 +577,7 @@ class LinguoAIApp:
         self._register(gtts_voice, "normal", tts_engine="gtts")
 
     def _build_provider_card(self, parent: ttk.Frame) -> None:
-        card = ttk.LabelFrame(parent, text="Gewählter Modus", padding=12)
+        card = ttk.Labelframe(parent, text="Gewählter Modus", padding=12)
         card.grid(row=0, column=0, sticky="ew", pady=(0, 9))
         card.columnconfigure(0, weight=1)
 
@@ -607,7 +607,7 @@ class LinguoAIApp:
         self._bind_dynamic_wrap(self.job_summary_label, card, inset=24)
 
     def _build_environment_card(self, parent: ttk.Frame) -> None:
-        card = ttk.LabelFrame(parent, text="Systemcheck", padding=12)
+        card = ttk.Labelframe(parent, text="Systemcheck", padding=12)
         card.grid(row=1, column=0, sticky="ew", pady=(0, 9))
         card.columnconfigure(0, weight=1)
         self.environment_label = ttk.Label(
@@ -627,7 +627,7 @@ class LinguoAIApp:
         check_button.grid(row=0, column=1, sticky="e")
 
     def _build_progress_card(self, parent: ttk.Frame) -> None:
-        card = ttk.LabelFrame(parent, text="Fortschritt und Ergebnis", padding=12)
+        card = ttk.Labelframe(parent, text="Fortschritt und Ergebnis", padding=12)
         card.grid(row=2, column=0, sticky="nsew")
         card.columnconfigure(0, weight=1)
         card.rowconfigure(5, weight=1)
@@ -688,7 +688,7 @@ class LinguoAIApp:
         tab.columnconfigure(0, weight=1, uniform="advanced")
         tab.columnconfigure(1, weight=1, uniform="advanced")
 
-        performance = ttk.LabelFrame(tab, text="Leistung", padding=12)
+        performance = ttk.Labelframe(tab, text="Leistung", padding=12)
         performance.grid(row=0, column=0, sticky="nsew", padx=(0, 7), pady=(0, 9))
         performance.columnconfigure(0, weight=1, uniform="performance")
         performance.columnconfigure(1, weight=1, uniform="performance")
@@ -803,7 +803,7 @@ class LinguoAIApp:
         ):
             self._register(widget, state)
 
-        nllb = ttk.LabelFrame(tab, text="Lokales NLLB-Modell", padding=12)
+        nllb = ttk.Labelframe(tab, text="Lokales NLLB-Modell", padding=12)
         nllb.grid(row=0, column=1, sticky="nsew", padx=(7, 0), pady=(0, 9))
         nllb.columnconfigure(0, weight=1, uniform="nllb")
         nllb.columnconfigure(1, weight=1, uniform="nllb")
@@ -883,7 +883,7 @@ class LinguoAIApp:
         ):
             self._register(widget, state, provider="nllb")
 
-        tts = ttk.LabelFrame(tab, text="Lokale Stimme und TTS-Engine", padding=12)
+        tts = ttk.Labelframe(tab, text="Lokale Stimme und TTS-Engine", padding=12)
         tts.grid(row=1, column=0, columnspan=2, sticky="nsew", pady=(0, 9))
         tts.columnconfigure(0, weight=1, uniform="tts")
         tts.columnconfigure(1, weight=1, uniform="tts")
@@ -1102,7 +1102,7 @@ class LinguoAIApp:
         ):
             self._register(widget, state, tts_engine="chatterbox")
 
-        credentials = ttk.LabelFrame(tab, text="Online-Dienste und Schlüssel", padding=12)
+        credentials = ttk.Labelframe(tab, text="Online-Dienste und Schlüssel", padding=12)
         credentials.grid(row=2, column=0, sticky="nsew", padx=(0, 7))
         credentials.columnconfigure(0, weight=1, uniform="credentials")
         credentials.columnconfigure(1, weight=1, uniform="credentials")
@@ -1154,7 +1154,7 @@ class LinguoAIApp:
         self._register(gemini_model, "normal", provider="gemini")
         self._register(show_keys, "normal")
 
-        limits = ttk.LabelFrame(tab, text="Audio und Netzwerk", padding=12)
+        limits = ttk.Labelframe(tab, text="Audio und Netzwerk", padding=12)
         limits.grid(row=2, column=1, sticky="nsew", padx=(7, 0))
         limits.columnconfigure(0, weight=1, uniform="limits")
         limits.columnconfigure(1, weight=1, uniform="limits")

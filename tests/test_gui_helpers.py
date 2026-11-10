@@ -7,6 +7,21 @@ from pathlib import Path
 
 @unittest.skipUnless(importlib.util.find_spec("ttkbootstrap"), "ttkbootstrap not installed")
 class GuiHelperTests(unittest.TestCase):
+    def test_main_window_builds_with_installed_ttkbootstrap(self) -> None:
+        from tkinter import TclError
+
+        from linguoai.gui import LinguoAIApp, ttk
+
+        try:
+            root = ttk.Window(themename="darkly")
+        except TclError as error:
+            self.skipTest(f"Tk display unavailable: {error}")
+        self.addCleanup(root.destroy)
+        root.withdraw()
+        LinguoAIApp(root)
+        root.update_idletasks()
+        self.assertIn("LinguoAI", root.title())
+
     def test_language_display_and_custom_code_are_parsed(self) -> None:
         from linguoai.gui import LinguoAIApp
 
