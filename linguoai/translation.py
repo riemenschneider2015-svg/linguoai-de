@@ -7,13 +7,18 @@ import inspect
 import json
 import math
 import os
+import re
+import secrets
 import threading
 import time
+from collections import deque
 from collections.abc import Callable, Sequence
 from email.utils import parsedate_to_datetime
 from functools import partial
+from itertools import pairwise
 from types import SimpleNamespace
 from typing import Any, ClassVar, Protocol
+from urllib.parse import quote
 
 from .cache import LRUCache
 from .config import LANGUAGES, AppConfig
@@ -82,6 +87,10 @@ GOOGLE_TARGET_LANGUAGE_ALIASES = {
 _DEEP_TRANSLATOR_REQUEST_LOCK = threading.RLock()
 _GOOGLE_REQUEST_PAUSE = 1.0
 _GOOGLE_RATE_LIMIT_PAUSE = 30.0
+_GOOGLE_BATCH_MAX_ITEMS = 12
+_GOOGLE_BATCH_MAX_CHARACTERS = 4500
+_GOOGLE_BATCH_MAX_ENCODED_BYTES = 6000
+_GOOGLE_MARKER_TEMPLATE = "[[LNG00000000_0000]]"
 _google_next_request = 0.0
 _google_pause_until = 0.0
 
@@ -91,10 +100,61 @@ TranslationCache = LRUCache[tuple[str, str, str, str, str], str]
 class GoogleRateLimitError(TranslationError):
     def __init__(self) -> None:
         super().__init__(
-            "Google Translate hat das Anfragelimit erreicht (429). "
+            "Google Translate ohne Schlüssel hat das Anfragelimit erreicht (429). "
             "Warte und starte den Auftrag erneut oder wähle unter Übersetzungsart "
             "NLLB lokal bzw. DeepL API mit Schlüssel."
         )
+
+
+class GoogleBatchFormatError(TranslationError):
+    """A successful response lost cue boundaries; only then retry individual cues."""
+
+
+def _google_batch_ranges(texts: Sequence[str]) -> list[tuple[int, int]]:
+    """Budget markers and URL encoding as well as source characters for the GET request."""
+    batches = []
+    start = 0
+    characters = len(_GOOGLE_MARKER_TEMPLATE)
+    encoded_bytes = len(quote(_GOOGLE_MARKER_TEMPLATE, safe=""))
+    for index, text in enumerate(texts):
+        wrapped = f"{_GOOGLE_MARKER_TEMPLATE}\n{text}\n"
+        encoded_size = len(quote(wrapped, safe=""))
+        if index > start and (
+            index - start >= _GOOGLE_BATCH_MAX_ITEMS
+            or characters + len(wrapped) > _GOOGLE_BATCH_MAX_CHARACTERS
+            or encoded_bytes + encoded_size > _GOOGLE_BATCH_MAX_ENCODED_BYTES
+        ):
+            batches.append((start, index))
+            start = index
+            characters = len(_GOOGLE_MARKER_TEMPLATE)
+            encoded_bytes = len(quote(_GOOGLE_MARKER_TEMPLATE, safe=""))
+        characters += len(wrapped)
+        encoded_bytes += encoded_size
+    if start < len(texts):
+        batches.append((start, len(texts)))
+    return batches
+
+
+def _google_batch_payload(texts: Sequence[str]) -> tuple[str, str]:
+    prefix = f"[[LNG{secrets.token_hex(4).upper()}_"
+    while any(prefix in text for text in texts):
+        prefix = f"[[LNG{secrets.token_hex(4).upper()}_"
+    payload = "".join(f"{prefix}{index:04d}]]\n{text}\n" for index, text in enumerate(texts))
+    return payload + f"{prefix}{len(texts):04d}]]", prefix
+
+
+def _google_batch_result(translated: str, prefix: str, count: int) -> list[str]:
+    markers = list(re.finditer(re.escape(prefix) + r"([0-9]{4})\]\]", translated))
+    if (
+        [int(marker.group(1)) for marker in markers] != list(range(count + 1))
+        or translated[: markers[0].start()].strip()
+        or translated[markers[-1].end() :].strip()
+    ):
+        raise GoogleBatchFormatError("Google hat die Segmentmarkierungen verändert.")
+    texts = [translated[left.end() : right.start()].strip() for left, right in pairwise(markers)]
+    if any(not text or prefix in text for text in texts):
+        raise GoogleBatchFormatError("Google lieferte ein leeres oder ungültiges Segment.")
+    return texts
 
 
 def _google_retry_after(value: str) -> float:
@@ -105,8 +165,10 @@ def _google_retry_after(value: str) -> float:
             seconds = parsedate_to_datetime(value).timestamp() - time.time()
         except (ValueError, TypeError, OverflowError, OSError):
             return _GOOGLE_RATE_LIMIT_PAUSE
-    return max(_GOOGLE_RATE_LIMIT_PAUSE, seconds) if math.isfinite(seconds) else (
-        _GOOGLE_RATE_LIMIT_PAUSE
+    return (
+        max(_GOOGLE_RATE_LIMIT_PAUSE, seconds)
+        if math.isfinite(seconds)
+        else (_GOOGLE_RATE_LIMIT_PAUSE)
     )
 
 
@@ -239,6 +301,10 @@ class DeepTranslatorAdapter:
         target_language: str,
         cancel_event: threading.Event | None = None,
     ) -> list[str]:
+        if not texts:
+            return []
+        if len(_google_batch_ranges(texts)) != 1:
+            raise TranslationError("Google-Textbatch überschreitet das Anfragebudget.")
         try:
             from deep_translator import GoogleTranslator
             from deep_translator import google as google_module
@@ -288,10 +354,18 @@ class DeepTranslatorAdapter:
             original_requests = google_module.requests
             google_module.requests = SimpleNamespace(get=get_with_timeout)
             try:
-                translated = translator.translate_batch(list(texts))
+                if len(texts) == 1:
+                    translated = translator.translate(texts[0])
+                    if not isinstance(translated, str):
+                        raise TranslationError("Google lieferte keinen gültigen Zieltext.")
+                    return [translated]
+                payload, prefix = _google_batch_payload(texts)
+                translated = translator.translate(payload)
+                if not isinstance(translated, str):
+                    raise GoogleBatchFormatError("Google lieferte keinen gültigen Textbatch.")
+                return _google_batch_result(translated, prefix, len(texts))
             finally:
                 google_module.requests = original_requests
-        return [str(item) for item in translated]
 
     def _ensure_deepl_client(self) -> Any:
         if self._deepl_client is not None:
@@ -575,6 +649,7 @@ class TranslationManager:
         full_context = self._translation_context(texts)
         batches = batches_by_size(texts)
         translated_texts: list[str | None] = [None] * len(texts)
+        google_can_batch = True
 
         for batch_number, (start, end) in enumerate(batches, start=1):
             check_cancelled(cancel_event)
@@ -598,8 +673,7 @@ class TranslationManager:
                 )
                 key_prefix = (service, source_language or "auto", self.config.target_language)
                 cache_keys = {
-                    position: (*key_prefix, context_key, texts[position])
-                    for position in remaining
+                    position: (*key_prefix, context_key, texts[position]) for position in remaining
                 }
                 uncached: list[int] = []
                 for position in remaining:
@@ -617,35 +691,61 @@ class TranslationManager:
                     }
                     if context_value:
                         request_kwargs["context"] = context_value
-                    # The keyless Google adapter issues one HTTP request per segment.
-                    groups = ([position] for position in uncached) if service == "google" else (
-                        uncached,
+                    protected_items = {
+                        position: protect_entities(texts[position]) for position in uncached
+                    }
+                    ranges = (
+                        _google_batch_ranges([protected_items[pos].text for pos in uncached])
+                        if service == "google"
+                        else [(0, len(uncached))]
                     )
+                    groups = deque(uncached[left:right] for left, right in ranges)
                     try:
-                        for group in groups:
+                        while groups:
+                            group = groups.popleft()
                             if service == "google":
-                                position = group[0]
-                                cached = self.cache.get(cache_keys[position])
-                                if cached is not None:
-                                    translated_texts[position] = cached
+                                if not google_can_batch and len(group) > 1:
+                                    groups.extendleft([position] for position in reversed(group))
                                     continue
-                            protected = [protect_entities(texts[position]) for position in group]
+                                pending = []
+                                for position in group:
+                                    cached = self.cache.get(cache_keys[position])
+                                    if cached is None:
+                                        pending.append(position)
+                                    else:
+                                        translated_texts[position] = cached
+                                group = pending
+                            if not group:
+                                continue
+                            protected = [protected_items[position] for position in group]
                             request = partial(
                                 adapter.translate_batch,
                                 [item.text for item in protected],
                                 **request_kwargs,
                             )
-                            raw = retry_call(
-                                request,
-                                attempts=self.config.request_retries,
-                                cancel_event=cancel_event,
-                                on_retry=lambda attempt, exc, name=service: self.logger(
-                                    f"{name}: Retry {attempt} nach Fehler: {self._safe_error(exc)}"
-                                ),
-                                should_retry=getattr(adapter, "is_retryable", lambda _exc: True),
-                                base_delay_seconds=self.config.request_retry_base_seconds,
-                                max_delay_seconds=self.config.request_retry_max_seconds,
-                            )
+                            try:
+                                raw = retry_call(
+                                    request,
+                                    attempts=self.config.request_retries,
+                                    cancel_event=cancel_event,
+                                    on_retry=lambda attempt, exc, name=service: self.logger(
+                                        f"{name}: Retry {attempt} nach Fehler: "
+                                        f"{self._safe_error(exc)}"
+                                    ),
+                                    should_retry=getattr(
+                                        adapter, "is_retryable", lambda _exc: True
+                                    ),
+                                    base_delay_seconds=self.config.request_retry_base_seconds,
+                                    max_delay_seconds=self.config.request_retry_max_seconds,
+                                )
+                            except GoogleBatchFormatError:
+                                if service != "google" or len(group) == 1:
+                                    raise
+                                # Google changed boundaries. Avoid sending more blocks
+                                # that would need an extra round of individual requests.
+                                google_can_batch = False
+                                groups.appendleft(group)
+                                continue
                             check_cancelled(cancel_event)
                             if len(raw) != len(group):
                                 raise TranslationError(

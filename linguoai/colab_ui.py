@@ -124,6 +124,19 @@ def resolve_optional_job_file(
     return candidate
 
 
+def _resolve_parakeet_download_directory(custom_directory: str | None = None) -> Path:
+    """Beachtet einen eigenen Modellordner und den Modellcache der Colab-Startzelle."""
+    entered = (custom_directory or "").strip()
+    if entered:
+        return Path(entered).expanduser()
+    model_cache = os.environ.get("LINGUOAI_MODEL_CACHE", "").strip()
+    if model_cache:
+        return Path(model_cache).expanduser() / "parakeet-v3"
+    from .model_downloader import default_parakeet_directory
+
+    return default_parakeet_directory()
+
+
 def _validate_asr_options(
     source_language: str,
     asr_engine: str,
@@ -537,6 +550,7 @@ def process_colab_batch(
         raise RuntimeError("Kein Video konnte verarbeitet werden. " + " | ".join(failed_messages))
 
     summary = f"Batch fertig: {len(completed_messages)}/{total} Video(s) erfolgreich."
+    summary += "\n" + "\n".join(completed_messages)
     if failed_messages:
         summary += " Fehler: " + " | ".join(failed_messages)
     return summary, artifacts
@@ -783,7 +797,7 @@ def build_demo(
             with gr.Row():
                 parakeet_model_directory = gr.Textbox(
                     label="Lokaler Parakeet-Modellordner auf dem Server / in Colab",
-                    placeholder="/content/models/sherpa-onnx-nemo-parakeet-tdt-0.6b-v3-int8",
+                    placeholder=str(_resolve_parakeet_download_directory()),
                     scale=4,
                 )
                 parakeet_download_btn = gr.Button("Parakeet v3 herunterladen", scale=1)
@@ -1004,22 +1018,9 @@ def build_demo(
             custom_directory: str,
             progress: gr.Progress = gr.Progress(),  # noqa: B008 - injected by Gradio
         ) -> str:
-            from .model_downloader import (
-                default_parakeet_directory,
-                download_parakeet_model,
-                is_parakeet_model_ready,
-            )
+            from .model_downloader import download_parakeet_model, is_parakeet_model_ready
 
-            entered = custom_directory.strip() if custom_directory else ""
-            dest = (
-                Path(entered).expanduser()
-                if entered
-                else (
-                    Path("/content/models/sherpa-onnx-nemo-parakeet-tdt-0.6b-v3-int8")
-                    if Path("/content").is_dir()
-                    else default_parakeet_directory()
-                )
-            )
+            dest = _resolve_parakeet_download_directory(custom_directory)
             if is_parakeet_model_ready(dest):
                 gr.Info(f"Parakeet-Modell ist bereits vollständig vorhanden: {dest}")
                 return str(dest)

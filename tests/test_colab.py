@@ -11,6 +11,7 @@ from unittest import mock
 from linguoai.colab_ui import (
     _batch_sources,
     _copy_file_cancellable,
+    _resolve_parakeet_download_directory,
     _start_cloudflare_tunnel,
     _stop_active_tunnel,
     _validated_tunnel_hostname,
@@ -34,6 +35,36 @@ class ColabTests(unittest.TestCase):
 
     def tearDown(self) -> None:
         _stop_active_tunnel()
+
+    def test_parakeet_download_keeps_explicit_directory_ahead_of_model_cache(self) -> None:
+        with (
+            mock.patch.dict("os.environ", {"LINGUOAI_MODEL_CACHE": "/drive/model-cache"}),
+            mock.patch("linguoai.model_downloader.default_parakeet_directory") as default,
+        ):
+            destination = _resolve_parakeet_download_directory("  ~/my-parakeet  ")
+        self.assertEqual(destination, Path.home() / "my-parakeet")
+        default.assert_not_called()
+
+    def test_parakeet_download_uses_startup_model_cache(self) -> None:
+        with (
+            mock.patch.dict("os.environ", {"LINGUOAI_MODEL_CACHE": " ~/LinguoAI/model-cache "}),
+            mock.patch("linguoai.model_downloader.default_parakeet_directory") as default,
+        ):
+            destination = _resolve_parakeet_download_directory("")
+        self.assertEqual(destination, Path.home() / "LinguoAI" / "model-cache" / "parakeet-v3")
+        default.assert_not_called()
+
+    def test_parakeet_download_without_model_cache_uses_local_default(self) -> None:
+        local_default = Path("local-models") / "parakeet-v3"
+        with (
+            mock.patch.dict("os.environ", {"LINGUOAI_MODEL_CACHE": " "}),
+            mock.patch(
+                "linguoai.model_downloader.default_parakeet_directory", return_value=local_default
+            ) as default,
+        ):
+            destination = _resolve_parakeet_download_directory(None)
+        self.assertEqual(destination, local_default)
+        default.assert_called_once_with()
 
     def test_cloudflare_hostname_must_be_a_plain_https_url(self) -> None:
         self.assertEqual(
@@ -339,6 +370,24 @@ class ColabTests(unittest.TestCase):
         self.assertIn("1/2", status)
         self.assertIn("invalid video", status)
         self.assertEqual(files, ["second-out.mp4"])
+
+    def test_batch_preserves_drive_copy_warning_and_other_success_messages(self) -> None:
+        drive_warning = (
+            "Drive-Speicherung fehlgeschlagen; Browser-Downloads sind verfügbar: quota exceeded."
+        )
+        translation_warning = "Warnungen: Ein Sprachclip musste gekürzt werden."
+        with mock.patch(
+            "linguoai.colab_ui.process_colab_job",
+            side_effect=[
+                (f"Fertig. {drive_warning}", ["first-out.mp4"]),
+                (f"Fertig. {translation_warning}", ["second-out.mp4"]),
+            ],
+        ):
+            status, files = process_colab_batch(**self.batch_options())
+        self.assertIn("2/2", status)
+        self.assertIn(f"first.mp4: Fertig. {drive_warning}", status)
+        self.assertIn(f"second.mp4: Fertig. {translation_warning}", status)
+        self.assertEqual(files, ["first-out.mp4", "second-out.mp4"])
 
     def test_batch_can_stop_on_first_error(self) -> None:
         with (

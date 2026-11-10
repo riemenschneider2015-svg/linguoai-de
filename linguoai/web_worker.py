@@ -471,15 +471,27 @@ class RemoteWorker:
         if path.stat().st_size > UPLOAD_CHUNK_BYTES:
             self._upload_artifact_chunks(job, name, path, lease)
             return
-        lease.check()
-        with path.open("rb") as file:
-            response = self.client.post(
-                f"/api/worker/jobs/{job['id']}/artifacts/{name}",
-                data=self._ownership(job),
-                files={"file": (path.name, file, "application/octet-stream")},
-            )
-            response.raise_for_status()
-        lease.check()
+        deadline = self._upload_clock() + self.upload_deadline_seconds
+        for retry in range(UPLOAD_MAX_RETRIES + 1):
+            try:
+                # Reopen after a consumed/lost response. The API replaces the same
+                # artifact name and retains earlier storage references for cleanup.
+                with path.open("rb") as file:
+                    self._upload_request_once(
+                        "POST",
+                        f"/api/worker/jobs/{job['id']}/artifacts/{name}",
+                        lease=lease,
+                        deadline=deadline,
+                        data=self._ownership(job),
+                        files={"file": (path.name, file, "application/octet-stream")},
+                    )
+                return
+            except Exception as error:
+                if not self._transient_upload_error(error) or retry == UPLOAD_MAX_RETRIES:
+                    raise
+                self._upload_pause(
+                    min(5, self.upload_retry_base_seconds * 2**retry), lease, deadline
+                )
 
     def _upload_artifact_chunks(
         self, job: dict[str, Any], name: str, path: Path, lease: _JobLease

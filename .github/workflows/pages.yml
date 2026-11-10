@@ -29,6 +29,8 @@ jobs:
           .pages-venv/bin/python -m pip install "beautifulsoup4>=4.13,<5"
       - name: Test Pages output
         run: .pages-venv/bin/python -m unittest tests.test_github_pages
+      - name: Test Studio browser client
+        run: node --test tests/web_upload.test.cjs
       - name: Build public artifact
         env:
           PAGES_BASE_URL: ${{ steps.pages.outputs.base_url }}

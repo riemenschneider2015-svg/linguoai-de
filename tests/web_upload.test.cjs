@@ -69,6 +69,8 @@ function fixture(configuration = {}) {
     assert.ok(address.pathname.startsWith("/linguoai/api/"), "the reverse proxy subpath is retained");
     assert.equal(options.credentials, "same-origin");
     if (method !== "GET") assert.equal(options.headers["X-LinguoAI-Request"], "1");
+    const override = configuration.fetchOverride?.(address, options);
+    if (override !== undefined) return override;
     if (method === "POST" && address.pathname.endsWith("/uploads")) {
       assert.equal(options.headers["Content-Type"], "application/json");
       assert.match(options.headers["X-Upload-Request-ID"], /^[A-Za-z0-9_-]{20,80}$/);
@@ -173,11 +175,16 @@ function fixture(configuration = {}) {
     fetch, window,
     document: { getElementById: element, createElement: () => new Element(), body: new Element() },
     setTimeout: (callback, milliseconds) => {
+      if (configuration.suspendPoll && [2500, 5000, 10000].includes(milliseconds)) {
+        delays.push(milliseconds);
+        return null;
+      }
       if (milliseconds < 10000) delays.push(milliseconds);
       if ((configuration.cancelBackoff && milliseconds === 1000) || (configuration.cancelFinalize && milliseconds === 1500)) {
         setTimeout(() => context.__client.state.upload.abort(), 0);
       }
-      return setTimeout(callback, milliseconds < 10000 ? 1 : milliseconds);
+      const fastTimeout = configuration.fastApiTimeout && milliseconds === 30000;
+      return setTimeout(callback, milliseconds < 10000 || fastTimeout ? 1 : milliseconds);
     },
     clearTimeout,
   });
@@ -187,7 +194,7 @@ function fixture(configuration = {}) {
   let source = fs.readFileSync(scriptPath, "utf8").replace(/\r\n/g, "\n");
   const oldTail = "  connect();\n})();";
   assert.ok(source.endsWith(oldTail + "\n") || source.endsWith(oldTail));
-  source = source.replace(oldTail, "  globalThis.__client = { uploadFile, state };\n})();");
+  source = source.replace(oldTail, "  globalThis.__client = { api, pollJob, uploadFile, state };\n})();");
   vm.runInContext(source, context, { filename: "web-app.js" });
   context.__client.state.authenticated = true;
   context.__client.state.uploading = true;
@@ -200,6 +207,42 @@ function fixture(configuration = {}) {
     start: () => context.__client.uploadFile(file, { target_language: "en", source_language: "de", asr_engine: "parakeet" }),
   };
 }
+
+test("a stalled response body times out with a recoverable API error", async () => {
+  const f = fixture({
+    fastApiTimeout: true,
+    fetchOverride: (_address, options) => ({
+      ok: true,
+      status: 200,
+      json: () => new Promise((resolve, reject) => {
+        options.signal.addEventListener("abort", () => {
+          reject(Object.assign(new Error("aborted"), { name: "AbortError" }));
+        }, { once: true });
+      }),
+    }),
+  });
+  await assert.rejects(f.client.api("capabilities"), /Webdienst antwortet gerade nicht/);
+});
+
+test("job polling slows down after consecutive failures and recovers on success", async () => {
+  const job = { id: "active-job", filename: "sample.mp4", status: "running", progress: 30 };
+  let attempts = 0;
+  const f = fixture({
+    suspendPoll: true,
+    fetchOverride: (address) => {
+      if (!address.pathname.endsWith("/jobs/active-job")) return undefined;
+      attempts += 1;
+      return attempts <= 2
+        ? { ok: false, status: 503, json: async () => ({ detail: "unavailable" }) }
+        : { ok: true, status: 200, json: async () => job };
+    },
+  });
+  f.client.state.activeJob = job;
+  f.client.state.lastCapabilitiesAt = Date.now();
+  for (let index = 0; index < 3; index += 1) await f.client.pollJob(job.id, 0);
+  assert.deepEqual(f.delays, [5000, 10000, 2500]);
+  assert.equal(f.elements.get("job-error").hidden, true);
+});
 
 test("uploads a file larger than two chunks with real SHA-256, relative routes and finalization polling", async () => {
   const errors = [];

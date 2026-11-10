@@ -170,8 +170,93 @@ def test_artifact_upload_failure_cannot_mark_complete():
     server = FakeServer(claim())
     server.upload_failure = "original_srt"
     with worker(server) as remote:
+        remote.upload_retry_base_seconds = 0
         remote.run_once()
-    assert server.artifacts == ["video", "original_srt"]
+    assert server.artifacts == ["video", *(["original_srt"] * 4)]
+    assert server.calls[-1][0].endswith("/fail")
+    assert not any(path.endswith("/complete") for path, _body in server.calls)
+
+
+@pytest.mark.parametrize("failure", [429, 503, "lost_response"])
+def test_small_artifact_retry_replays_complete_file_after_transient_failure(failure):
+    server = FakeServer(claim())
+    attempts = []
+
+    def route(request):
+        response = server(request)
+        if request.url.path.endswith("/artifacts/original_srt"):
+            attempts.append(request.read())
+            if len(attempts) == 1:
+                if failure == "lost_response":
+                    raise httpx.ReadError("response lost after upload", request=request)
+                return httpx.Response(failure)
+        return response
+
+    with worker(route) as remote:
+        remote.upload_retry_base_seconds = 0
+        remote.run_once()
+    assert len(attempts) == 2
+    assert all(b"source subtitles" in body for body in attempts)
+    assert server.artifacts == ["video", "original_srt", "original_srt", "translated_srt"]
+    assert server.calls[-1][0].endswith("/complete")
+
+
+def test_small_artifact_forbidden_failure_is_not_retried():
+    server = FakeServer(claim())
+
+    def route(request):
+        response = server(request)
+        return httpx.Response(403) if request.url.path.endswith("/artifacts/video") else response
+
+    with worker(route) as remote:
+        remote.run_once()
+    assert server.artifacts == ["video"]
+    assert server.calls[-1][0].endswith("/fail")
+
+
+@pytest.mark.parametrize("lose_lease", [False, True])
+def test_small_artifact_retry_backoff_honors_cancellation_and_lease_loss(lose_lease):
+    server = FakeServer(claim())
+
+    def route(request):
+        response = server(request)
+        if request.url.path.endswith("/artifacts/video"):
+            with server.lock:
+                if lose_lease:
+                    server.lose_after = server.heartbeats + 1
+                else:
+                    server.cancel_after = server.heartbeats + 1
+            return httpx.Response(503)
+        return response
+
+    with worker(route) as remote:
+        remote.upload_retry_base_seconds = 1
+        remote.run_once()
+    assert server.artifacts == ["video"]
+    assert not any(path.endswith("/complete") for path, _body in server.calls)
+    failures = [json.loads(body) for path, body in server.calls if path.endswith("/fail")]
+    if lose_lease:
+        assert failures == []
+    else:
+        assert failures[0]["cancelled"] is True
+
+
+def test_small_artifact_retry_stops_at_upload_deadline():
+    server = FakeServer(claim())
+    clock = {"now": 0.0}
+
+    def route(request):
+        response = server(request)
+        if request.url.path.endswith("/artifacts/video"):
+            clock["now"] = 2.0
+            return httpx.Response(503)
+        return response
+
+    with worker(route) as remote:
+        remote.upload_deadline_seconds = 1
+        remote._upload_clock = lambda: clock["now"]
+        remote.run_once()
+    assert server.artifacts == ["video"]
     assert server.calls[-1][0].endswith("/fail")
     assert not any(path.endswith("/complete") for path, _body in server.calls)
 

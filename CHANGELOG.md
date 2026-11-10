@@ -2,6 +2,10 @@
 
 ## 2.2.2
 
+- Google Translate ohne Schlüssel bündelt kurze Untertitel und prüft ihre Zuordnung vor der Übernahme. Bei HTTP 429 hält die App weitere Google-Anfragen an.
+- Das Video Studio beendet hängende Anfragen nach einer Frist und fragt bei Verbindungsfehlern seltener nach dem Auftragsstatus.
+- Der Worker wiederholt vorübergehend fehlgeschlagene Uploads kleiner Ergebnisdateien innerhalb der bestehenden Fristen.
+- Colab legt Parakeet im gewählten Modellcache ab. Bei mehreren Videos zeigt der Abschlussbericht auch Warnungen einzelner Aufträge an.
 - Quellcode, Website und Colab verweisen auf `riemenschneider2015-svg/linguoai-de`. Die Website lässt sich mit korrekten Sprach- und Asset-Pfaden über GitHub Pages veröffentlichen; Colab lädt das Release-ZIP direkt aus diesem Repository.
 - Whisper erhält die bereits normalisierten PCM-Audiodaten direkt. Damit entfällt der fehlerhafte Aufruf von `av.open(..., metadata_errors=...)` mit neueren PyAV-Versionen.
 - Fehlende Parakeet-Modellordner und ungeeignete Quellsprachen werden vor dem Kopieren der Videos geprüft. Die Meldung erklärt den Wechsel zu Whisper oder die nötige Einrichtung.

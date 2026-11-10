@@ -5,6 +5,8 @@
   const byId = (id) => document.getElementById(id);
   const apiBase = new URL("api/", window.location.href);
   const mutationHeaders = { "X-LinguoAI-Request": "1" };
+  const apiTimeoutMs = 30000;
+  const pollIntervalMs = 2500;
   const terminalStates = new Set(["completed", "failed", "cancelled", "expired"]);
   const parakeetLanguages = "bg hr cs da nl en et fi fr de el hu it lv lt mt pl pt ro sk sl es sv ru uk".split(" ");
   const statusLabels = {
@@ -30,6 +32,7 @@
     activeJob: null, jobRevision: 0, pollTimer: null, pollController: null, expiryTimer: null,
     upload: null, uploading: false, filename: "", recentJobs: [],
     lastCapabilitiesAt: 0, connecting: false, selectionCleared: false,
+    pollFailures: 0, recentRevision: 0,
   };
 
   class ApiError extends Error {
@@ -60,7 +63,8 @@
   async function readResponse(response) {
     let data;
     try { data = await response.json(); }
-    catch (_error) {
+    catch (error) {
+      if (error.name === "AbortError") throw error;
       throw new ApiError("Der Webdienst ist hier nicht erreichbar. Prüfe die Verbindung und versuche es erneut.", response.status);
     }
     if (!response.ok) throw new ApiError(errorDetail(data, "Die Anfrage konnte nicht abgeschlossen werden."), response.status);
@@ -69,16 +73,32 @@
 
   async function api(path, options = {}) {
     const generation = state.generation;
+    const { signal, ...request } = options;
+    const controller = new AbortController();
+    const abort = () => controller.abort();
+    if (signal?.aborted) abort();
+    else signal?.addEventListener("abort", abort, { once: true });
+    let timedOut = false;
+    const timeout = setTimeout(() => {
+      timedOut = true;
+      abort();
+    }, apiTimeoutMs);
     try {
       return await readResponse(await fetch(new URL(path, apiBase), {
-        ...options, credentials: "same-origin", cache: "no-store",
-        headers: { ...(options.method && options.method !== "GET" ? mutationHeaders : {}), ...options.headers },
+        ...request, signal: controller.signal, credentials: "same-origin", cache: "no-store",
+        headers: { ...(request.method && request.method !== "GET" ? mutationHeaders : {}), ...request.headers },
       }));
     } catch (error) {
+      if (timedOut && !signal?.aborted) {
+        throw new ApiError("Der Webdienst antwortet gerade nicht. Bitte versuche es erneut.");
+      }
       if (error.name === "AbortError") throw error;
       if (error.status === 401 && state.authenticated && generation === state.generation) expireSession();
       if (error instanceof ApiError) throw error;
       throw new ApiError("Die Verbindung wurde unterbrochen. Bitte versuche es erneut.");
+    } finally {
+      clearTimeout(timeout);
+      signal?.removeEventListener("abort", abort);
     }
   }
 
@@ -89,6 +109,7 @@
     state.expiryTimer = null;
     if (state.pollController) state.pollController.abort();
     state.pollController = null;
+    state.pollFailures = 0;
     state.jobRevision += 1;
   }
 
@@ -358,24 +379,30 @@
     renderRecent();
   }
 
-  function schedulePoll(id, revision) {
+  function schedulePoll(id, revision, delay) {
     if (!state.authenticated || state.activeJob?.id !== id || state.jobRevision !== revision) return;
-    state.pollTimer = setTimeout(() => pollJob(id, revision), 2500);
+    state.pollTimer = setTimeout(() => pollJob(id, revision), delay);
   }
 
   async function pollJob(id, revision) {
     if (!state.authenticated || state.activeJob?.id !== id || state.jobRevision !== revision) return;
+    if (state.pollController) return;
     const controller = new AbortController();
     state.pollController = controller;
     let completed = false;
+    let delay = pollIntervalMs;
     try {
       const job = await api(`jobs/${encodeURIComponent(id)}`, { signal: controller.signal });
       if (state.jobRevision !== revision || state.activeJob?.id !== id) return;
+      state.pollFailures = 0;
       renderJob(job);
       completed = terminalStates.has(job.status);
       if (completed) await loadRecent();
       else if (Date.now() - state.lastCapabilitiesAt > 30000) {
-        applyCapabilities(await api("capabilities", { signal: controller.signal }));
+        const capabilities = await api("capabilities", { signal: controller.signal });
+        if (state.jobRevision === revision && state.activeJob?.id === id) {
+          applyCapabilities(capabilities);
+        }
       }
     } catch (error) {
       if (error.name === "AbortError" || state.jobRevision !== revision) return;
@@ -383,10 +410,14 @@
         showError("job-error", `${error.message} Dein gespeicherter Auftrag bleibt erhalten.`);
         byId("refresh-job").hidden = false;
         if ([403, 404, 410].includes(error.status)) completed = true;
+        else {
+          state.pollFailures = Math.min(state.pollFailures + 1, 4);
+          delay = Math.min(30000, pollIntervalMs * 2 ** state.pollFailures);
+        }
       }
     } finally {
       if (state.pollController === controller) state.pollController = null;
-      if (!completed) schedulePoll(id, revision);
+      if (!completed) schedulePoll(id, revision, delay);
     }
   }
 
@@ -433,19 +464,24 @@
 
   async function loadRecent(resume = false) {
     const generation = state.generation;
+    const revision = ++state.recentRevision;
     byId("refresh-recent").disabled = true;
     try {
       const data = await api("jobs");
-      if (generation !== state.generation || !state.authenticated) return;
+      if (generation !== state.generation || revision !== state.recentRevision || !state.authenticated) return;
       state.recentJobs = Array.isArray(data.jobs) ? data.jobs : [];
       renderRecent();
       if (resume && !state.activeJob && !state.selectionCleared && state.recentJobs.length) {
         selectJob(state.recentJobs.find((job) => !terminalStates.has(job.status)) || state.recentJobs[0]);
       }
     } catch (error) {
-      if (state.authenticated) notice(`Deine letzten Aufträge konnten nicht geladen werden. ${error.message}`, "warning", true);
+      if (generation === state.generation && revision === state.recentRevision && state.authenticated) {
+        notice(`Deine letzten Aufträge konnten nicht geladen werden. ${error.message}`, "warning", true);
+      }
     } finally {
-      byId("refresh-recent").disabled = false;
+      if (generation === state.generation && revision === state.recentRevision) {
+        byId("refresh-recent").disabled = state.uploading;
+      }
     }
   }
 
@@ -487,20 +523,11 @@
 
   async function uploadJson(path, options = {}, operation = null) {
     if (operation) checkUpload(operation);
-    const controller = new AbortController();
-    const abort = () => controller.abort();
-    let timedOut = false;
-    const timeout = setTimeout(() => { timedOut = true; controller.abort(); }, 30000);
-    operation?.controller.signal.addEventListener("abort", abort, { once: true });
     try {
-      return await api(path, { ...options, signal: controller.signal });
+      return await api(path, { ...options, signal: operation?.controller.signal ?? options.signal });
     } catch (error) {
       if (operation?.cancelled) throw cancelledUpload();
-      if (timedOut) throw new ApiError("Die Verbindung antwortet gerade nicht. Der Upload wird geprüft.");
       throw error;
-    } finally {
-      clearTimeout(timeout);
-      operation?.controller.signal.removeEventListener("abort", abort);
     }
   }
 
