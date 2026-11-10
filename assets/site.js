@@ -62,15 +62,46 @@
     };
 
     const readHash = (event) => {
-      const card = cards.find((item) => `#${item.id}` === window.location.hash);
+      const hash = window.location.hash;
+      const card = cards.find((item) => `#${item.id}` === hash);
       showVersion(card?.dataset.version || "all", false);
       // Filtering and font loading change positions before native fragment scrolling.
-      if (card && !event?.persisted) {
-        const alignFinder = () => finder.scrollIntoView({ block: "start", behavior: "instant" });
-        if (document.fonts?.ready) document.fonts.ready.then(alignFinder);
-        else window.requestAnimationFrame(alignFinder);
+      if (!event?.persisted) {
+        if (card) {
+          const alignCard = () => card.scrollIntoView({ block: "start", behavior: "instant" });
+          if (document.fonts?.ready) document.fonts.ready.then(alignCard);
+          else window.requestAnimationFrame(alignCard);
+        } else if (hash === "#versionen") {
+          const target = document.getElementById("versionen");
+          if (target) {
+            const alignTarget = () => target.scrollIntoView({ block: "start", behavior: "instant" });
+            if (document.fonts?.ready) document.fonts.ready.then(alignTarget);
+            else window.requestAnimationFrame(alignTarget);
+          }
+        }
       }
     };
+    document.querySelectorAll('a[href$="#versionen"], a[href*="#versionen"]').forEach((link) => {
+      link.addEventListener("click", (event) => {
+        const rawHref = link.getAttribute("href") || "";
+        const hashIndex = rawHref.indexOf("#");
+        if (hashIndex === -1) return;
+        const targetHash = rawHref.slice(hashIndex);
+        if (targetHash !== "#versionen") return;
+        const targetPath = rawHref.slice(0, hashIndex);
+        const currentPath = window.location.pathname;
+        if (!targetPath || targetPath === currentPath || targetPath === "/" || targetPath.endsWith(currentPath)) {
+          const target = document.getElementById("versionen");
+          if (target) {
+            event.preventDefault();
+            try {
+              window.history.pushState(null, "", rawHref);
+            } catch (_e) {}
+            target.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        }
+      });
+    });
     controls.addEventListener("change", (event) => {
       if (!choices.includes(event.target)) return;
       const value = event.target.value;
