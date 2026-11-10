@@ -16,6 +16,8 @@ dependencies = [
     "faster-whisper>=1.1.0,<2",
     "gTTS>=2.5.4,<3",
     "numpy>=1.26,<3",
+    "sherpa-onnx>=1.12.11,<2",
+    "ttkbootstrap>=1.10,<2",
 ]
 
 [project.optional-dependencies]
@@ -65,9 +67,11 @@ dev = [
 
 [project.scripts]
 linguoai = "linguoai.cli:entrypoint"
+linguoai-gui = "linguoai.cli:gui_entrypoint"
 linguoai-colab = "linguoai.colab_ui:entrypoint"
 linguoai-web = "linguoai.web_api:entrypoint"
 linguoai-worker = "linguoai.web_worker:entrypoint"
+linguoai-download-models = "linguoai.model_downloader:main"
 
 [project.gui-scripts]
 linguoai-gui = "linguoai.cli:gui_entrypoint"

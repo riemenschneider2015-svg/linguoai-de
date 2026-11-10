@@ -142,3 +142,46 @@ def download_parakeet_model(
         json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
     )
     return target_dir
+
+
+def main() -> None:
+    """CLI entrypoint to download the default Parakeet model."""
+    import argparse
+    import sys
+
+    parser = argparse.ArgumentParser(description="LinguoAI Parakeet-Modell herunterladen")
+    parser.add_argument(
+        "--output-dir",
+        "-o",
+        type=Path,
+        default=None,
+        help="Zielordner (Standard: ~/.linguoai/models/parakeet-v3)",
+    )
+    parser.add_argument("--force", action="store_true", help="Bereits vorhandenes Modell überschreiben")
+    args = parser.parse_args()
+
+    dest = args.output_dir or default_parakeet_directory()
+    if is_parakeet_model_ready(dest) and not args.force:
+        print(f"Modell ist bereits vollständig vorhanden: {dest}")
+        return
+
+    print(f"Lade Parakeet-Modell ({PARAKEET_V3_REPOSITORY}) nach: {dest}")
+
+    def _prog(name: str, frac: float, done: int, total: int) -> None:
+        mb_done = done / (1024 * 1024)
+        mb_total = total / (1024 * 1024)
+        pct = frac * 100
+        sys.stdout.write(f"\r  [{name}] {pct:5.1f}% ({mb_done:6.1f} / {mb_total:6.1f} MB)")
+        sys.stdout.flush()
+
+    try:
+        target = download_parakeet_model(dest, progress_callback=_prog)
+        print(f"\n✓ Fertig! Modell bereit unter: {target}")
+    except Exception as exc:
+        print(f"\n✗ Fehler beim Herunterladen: {exc}", file=sys.stderr)
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
+

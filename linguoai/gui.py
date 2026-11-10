@@ -27,6 +27,7 @@ from .config import (
 )
 from .domain import BatchResult, ProgressUpdate, Stage
 from .errors import CancelledError, ConfigurationError, DependencyError, LinguoAIError
+from .model_downloader import default_parakeet_directory, is_parakeet_model_ready
 from .pipeline import VideoDubbingPipeline
 from .runtime import redact_secrets
 from .speech import DEFAULT_EDGE_VOICES
@@ -1744,7 +1745,11 @@ class LinguoAIApp:
             parakeet_model_directory=(
                 Path(self.parakeet_model_directory.get().strip())
                 if self.parakeet_model_directory.get().strip()
-                else None
+                else (
+                    default_parakeet_directory()
+                    if is_parakeet_model_ready(default_parakeet_directory())
+                    else None
+                )
             ),
             parakeet_profile=PARAKEET_PROFILE_DISPLAY[self.parakeet_profile.get()],
             parakeet_threads=self.parakeet_threads.get(),
