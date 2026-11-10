@@ -393,14 +393,17 @@
   const sample = document.querySelector('[data-translation-preview]');
   if (sample) {
     const samples = {
-      en: {name: 'English', text: "It's good to have you here."},
-      es: {name: 'Español', text: 'Qué bien que estés aquí.'},
-      fr: {name: 'Français', text: 'Ça fait plaisir de te voir.'},
+      en: {name: 'English', greeting: 'Hello', text: "It's good to have you here."},
+      es: {name: 'Español', greeting: 'Hola', text: 'Qué bien que estés aquí.'},
+      fr: {name: 'Français', greeting: 'Salut', text: 'Ça fait plaisir de te voir.'},
+      ru: {name: 'Русский', greeting: 'Привет', text: 'Как хорошо, что ты здесь.'},
+      uk: {name: 'Українська', greeting: 'Привіт', text: 'Добре, що ти тут.'},
     };
     const label = sample.querySelector('[data-sample-label]');
     const prefix = label.textContent.split(' · ')[0];
     const text = sample.querySelector('[data-sample-text]');
     const code = sample.querySelector('[data-sample-code]');
+    const greeting = sample.querySelector('[data-sample-greeting]');
     const result = sample.querySelector('[data-sample-result]');
     const controls = sample.querySelector('.sample-languages');
     const updateSample = (lang, announce = true) => {
@@ -410,6 +413,8 @@
       text.textContent = selected.text;
       text.lang = lang;
       code.textContent = lang.toUpperCase();
+      greeting.textContent = selected.greeting;
+      greeting.lang = lang;
       if (announce) { result.lang = lang; result.textContent = selected.text; }
     };
     controls.addEventListener('change', (event) => {
