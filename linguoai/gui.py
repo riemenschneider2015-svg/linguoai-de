@@ -168,7 +168,9 @@ class LinguoAIApp:
         self.asr_engine = tk.StringVar(value=next(iter(ASR_ENGINE_DISPLAY)))
         from .model_downloader import default_parakeet_directory, is_parakeet_model_ready
         default_parakeet = default_parakeet_directory()
-        initial_parakeet = str(default_parakeet) if is_parakeet_model_ready(default_parakeet) else ""
+        initial_parakeet = (
+            str(default_parakeet) if is_parakeet_model_ready(default_parakeet) else ""
+        )
         self.parakeet_model_directory = tk.StringVar(value=initial_parakeet)
         self.parakeet_download_status = tk.StringVar(value="")
         self._parakeet_downloading = False
@@ -1378,12 +1380,13 @@ class LinguoAIApp:
         self.optimize.trace_add("write", self._provider_changed)
 
     def _selection_changed(self, *_args: object) -> None:
-        if ASR_ENGINE_DISPLAY.get(self.asr_engine.get()) == "parakeet":
-            if not self.parakeet_model_directory.get().strip():
-                from .model_downloader import default_parakeet_directory, is_parakeet_model_ready
-                def_dir = default_parakeet_directory()
-                if is_parakeet_model_ready(def_dir):
-                    self.parakeet_model_directory.set(str(def_dir))
+        if (
+            ASR_ENGINE_DISPLAY.get(self.asr_engine.get()) == "parakeet"
+            and not self.parakeet_model_directory.get().strip()
+        ):
+            def_dir = default_parakeet_directory()
+            if is_parakeet_model_ready(def_dir):
+                self.parakeet_model_directory.set(str(def_dir))
         self._update_provider_controls()
         self._update_tts_controls()
         self._refresh_summary()
@@ -1845,11 +1848,14 @@ class LinguoAIApp:
                 self.parakeet_model_directory.set(saved_path)
                 self.parakeet_download_btn.configure(state=tk.NORMAL, text="Modell herunterladen")
                 self.parakeet_download_status.set("Modell vollständig geladen ✓")
-                self._append_log(f"Parakeet-Modell erfolgreich heruntergeladen: {saved_path}", "success")
+                self._append_log(
+                    f"Parakeet-Modell erfolgreich heruntergeladen: {saved_path}", "success"
+                )
                 if not self._closing:
                     messagebox.showinfo(
                         "Parakeet-Modell geladen",
-                        f"Das Parakeet-Modell wurde erfolgreich heruntergeladen und ausgewählt:\n\n{saved_path}",
+                        "Das Parakeet-Modell wurde heruntergeladen und ausgewählt.\n\n"
+                        f"{saved_path}",
                     )
                 self._selection_changed()
             elif event == "parakeet_error":

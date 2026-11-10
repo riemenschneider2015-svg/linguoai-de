@@ -14,13 +14,11 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from linguoai.model_downloader import (
+from linguoai.model_downloader import (  # noqa: E402 - support direct script execution
     PARAKEET_V3_FILES,
     PARAKEET_V3_REPOSITORY,
     default_parakeet_directory,
     download_parakeet_model,
-    is_parakeet_model_ready,
-    sha256_file,
 )
 
 REPOSITORY = PARAKEET_V3_REPOSITORY

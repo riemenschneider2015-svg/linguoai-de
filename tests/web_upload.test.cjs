@@ -2,6 +2,7 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
+const path = require("node:path");
 const vm = require("node:vm");
 const { webcrypto, createHash } = require("node:crypto");
 
@@ -180,7 +181,10 @@ function fixture(configuration = {}) {
     },
     clearTimeout,
   });
-  let source = fs.readFileSync("website/assets/web-app.js", "utf8").replace(/\r\n/g, "\n");
+  const assetPaths = ["../assets/web-app.js", "../website/assets/web-app.js"];
+  const scriptPath = assetPaths.map((file) => path.resolve(__dirname, file)).find(fs.existsSync);
+  assert.ok(scriptPath, "Could not find assets/web-app.js in the checkout");
+  let source = fs.readFileSync(scriptPath, "utf8").replace(/\r\n/g, "\n");
   const oldTail = "  connect();\n})();";
   assert.ok(source.endsWith(oldTail + "\n") || source.endsWith(oldTail));
   source = source.replace(oldTail, "  globalThis.__client = { uploadFile, state };\n})();");

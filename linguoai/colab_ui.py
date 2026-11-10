@@ -786,14 +786,13 @@ def build_demo(
                     placeholder="/content/models/sherpa-onnx-nemo-parakeet-tdt-0.6b-v3-int8",
                     scale=4,
                 )
-                parakeet_download_btn = gr.Button("Modell herunterladen 📥", scale=1)
+                parakeet_download_btn = gr.Button("Parakeet v3 herunterladen", scale=1)
             parakeet_threads = gr.Slider(1, 32, value=4, step=1, label="Parakeet-CPU-Threads")
             gr.Markdown(
-                'Parakeet benötigt `pip install -e ".[parakeet]"` und einen vollständigen '
-                "sherpa-onnx-Export (Encoder, Decoder, Joiner, tokens.txt und ggf. .onnx.data). "
-                "Wähle die Quellsprache oben ausdrücklich aus. NVIDIA V3 unterstützt "
-                "25 europäische Sprachen; das primeline-Profil ist für Deutsch. "
-                "Whisper-Modell und ASR-GPU-Auswahl gelten für Whisper."
+                "Wähle für den Einstieg **Whisper**. Für Parakeet wählst du das Profil "
+                "**multilingual-v3**, klickst auf **Parakeet v3 herunterladen** und wählst "
+                "oben die Sprache deines Videos. Der Modellordner wird automatisch eingetragen. "
+                "Für **german-primeline** wählst du einen passenden vorhandenen Modellordner."
             )
         with gr.Accordion("Cloud-Schlüssel und Optimierung", open=False):
             deepl_api_key = gr.Textbox(label="DeepL API-Key", type="password")
@@ -1001,8 +1000,15 @@ def build_demo(
             pipeline.cancel()
             return "Abbruch angefordert …"
 
-        def download_parakeet_action(custom_directory: str, progress: gr.Progress = gr.Progress()) -> str:
-            from .model_downloader import default_parakeet_directory, download_parakeet_model, is_parakeet_model_ready
+        def download_parakeet_action(
+            custom_directory: str,
+            progress: gr.Progress = gr.Progress(),  # noqa: B008 - injected by Gradio
+        ) -> str:
+            from .model_downloader import (
+                default_parakeet_directory,
+                download_parakeet_model,
+                is_parakeet_model_ready,
+            )
 
             entered = custom_directory.strip() if custom_directory else ""
             dest = (

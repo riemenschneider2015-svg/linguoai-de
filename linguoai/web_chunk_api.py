@@ -10,7 +10,7 @@ import shutil
 import threading
 from contextlib import suppress
 from pathlib import Path
-from typing import Annotated, Any
+from typing import Any
 
 from fastapi import Depends, Header, HTTPException, Query, Request
 from fastapi.responses import JSONResponse

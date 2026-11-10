@@ -13,7 +13,7 @@ import threading
 import time
 from contextlib import asynccontextmanager, suppress
 from pathlib import Path
-from typing import Annotated, Any, Literal
+from typing import Any, Literal
 from urllib.parse import urlsplit
 
 from fastapi import Depends, FastAPI, File, Form, Header, HTTPException, Request, UploadFile
@@ -582,7 +582,7 @@ def create_app(
     @app.post("/api/jobs", dependencies=[Depends(browser_change)], status_code=201)
     async def upload_job(
         request: Request,
-        file: UploadFile = File(...),
+        file: UploadFile = File(...),  # noqa: B008 - FastAPI request binding
         options: str = Form(...),
         username: str = Depends(owner),
     ):
@@ -715,7 +715,7 @@ def create_app(
     async def artifact_upload(
         job_id: str,
         name: str,
-        file: UploadFile = File(...),
+        file: UploadFile = File(...),  # noqa: B008 - FastAPI request binding
         worker_id: str = Form(...),
         lease_token: str = Form(...),
     ):

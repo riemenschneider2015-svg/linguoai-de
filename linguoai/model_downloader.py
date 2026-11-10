@@ -49,6 +49,7 @@ def download_parakeet_model(
     *,
     repository: str = PARAKEET_V3_REPOSITORY,
     files: tuple[str, ...] = PARAKEET_V3_FILES,
+    force: bool = False,
     progress_callback: Callable[[str, float, int, int], None] | None = None,
     cancel_event: threading.Event | None = None,
 ) -> Path:
@@ -71,7 +72,9 @@ def download_parakeet_model(
         "repository": repository,
         "revision": revision,
         "files": {},
-        "attribution": "NVIDIA parakeet-tdt-0.6b-v3; sherpa-onnx conversion by csukuangfj; CC-BY-4.0",
+        "attribution": (
+            "NVIDIA parakeet-tdt-0.6b-v3; sherpa-onnx conversion by csukuangfj; CC-BY-4.0"
+        ),
         "model_url": "https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3",
     }
 
@@ -89,12 +92,17 @@ def download_parakeet_model(
         target_file = target_dir / name
         target_file.parent.mkdir(parents=True, exist_ok=True)
 
-        if target_file.is_file() and (not size or target_file.stat().st_size == size):
+        if (
+            not force
+            and target_file.is_file()
+            and (not size or target_file.stat().st_size == size)
+        ):
             digest = sha256_file(target_file)
             if not expected or digest == expected:
-                manifest["files"][name] = {"sha256": digest, "size": target_file.stat().st_size}
+                cached_size = target_file.stat().st_size
+                manifest["files"][name] = {"sha256": digest, "size": cached_size}
                 if progress_callback:
-                    progress_callback(name, 1.0, target_file.stat().st_size, target_file.stat().st_size)
+                    progress_callback(name, 1.0, cached_size, cached_size)
                 continue
 
         partial = target_file.with_name(target_file.name + ".partial")
@@ -157,7 +165,9 @@ def main() -> None:
         default=None,
         help="Zielordner (Standard: ~/.linguoai/models/parakeet-v3)",
     )
-    parser.add_argument("--force", action="store_true", help="Bereits vorhandenes Modell überschreiben")
+    parser.add_argument(
+        "--force", action="store_true", help="Bereits vorhandenes Modell überschreiben"
+    )
     args = parser.parse_args()
 
     dest = args.output_dir or default_parakeet_directory()
@@ -175,7 +185,7 @@ def main() -> None:
         sys.stdout.flush()
 
     try:
-        target = download_parakeet_model(dest, progress_callback=_prog)
+        target = download_parakeet_model(dest, force=args.force, progress_callback=_prog)
         print(f"\n✓ Fertig! Modell bereit unter: {target}")
     except Exception as exc:
         print(f"\n✗ Fehler beim Herunterladen: {exc}", file=sys.stderr)

@@ -60,11 +60,11 @@ auf der CPU mit standardmäßig vier Threads gewählt werden:
 | `multilingual-v3` | 25 europäische Quellsprachen | NVIDIA parakeet-tdt-0.6b-v3 als sherpa-onnx-Export |
 | `german-primeline` | Deutsch | primeline-Fine-Tune als kompatibler sherpa-onnx-Export |
 
-Das optionale Paket installieren und einen vollständigen lokalen Modellordner
-bereitstellen. Ein Modell wird nicht automatisch heruntergeladen:
+Die Grundinstallation enthält `sherpa-onnx`. Das Standardmodell kannst du über
+`linguoai-download-models` herunterladen und anschließend für Parakeet auswählen.
 
 ```powershell
-python -m pip install -e ".[parakeet]"
+linguoai-download-models --output-dir "C:\Modelle\parakeet-v3"
 python -m linguoai --input "C:\Videos\quelle.mp4" --output "C:\Videos\quelle.en.mp4" --source-language de --language en --asr-engine parakeet --parakeet-profile multilingual-v3 --parakeet-model-directory "C:\Modelle\parakeet-v3" --parakeet-threads 4
 ```
 
@@ -75,9 +75,8 @@ beim Export bleiben. Eine `.nemo`-Datei allein funktioniert hier nicht. Das Prof
 wählt die Sprachprüfung; die ONNX-Dateien müssen tatsächlich zum gewählten Modell
 gehören.
 
-Desktop und Colab bieten dieselbe Auswahl in den erweiterten Einstellungen. In
-Colab vor dem Start `INSTALL_PARAKEET` aktivieren und den Modellordner dort
-bereitstellen. Bei Parakeet ist die **Quellsprache erforderlich**:
+Desktop und Colab bieten den Modell-Download in den erweiterten Einstellungen.
+Wähle dafür das Profil `multilingual-v3`. Bei Parakeet ist die **Quellsprache erforderlich**.
 Der Decoder erkennt zwar mehrsprachigen Text, liefert im verwendeten Adapter aber
 keine verlässlichen Sprachmetadaten für die Übersetzungsstufe. Das Deutsch-Profil
 akzeptiert Deutsch; das NVIDIA-Profil die 25 veröffentlichten Sprachen.

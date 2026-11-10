@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import io
+import json
 import tempfile
 import threading
 import unittest
@@ -38,7 +40,6 @@ class ModelDownloaderTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             file_path = Path(temp_dir) / "test.txt"
             file_path.write_bytes(b"hello world")
-            # sha256 of "hello world" is b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9
             self.assertEqual(
                 sha256_file(file_path),
                 "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9",
@@ -47,15 +48,40 @@ class ModelDownloaderTests(unittest.TestCase):
     def test_download_cancellation(self) -> None:
         cancel_event = threading.Event()
         cancel_event.set()
-        with tempfile.TemporaryDirectory() as temp_dir:
-            with mock.patch("urllib.request.urlopen") as mock_urlopen:
-                mock_response = mock.MagicMock()
-                mock_response.__enter__.return_value = mock_response
-                mock_response.read.return_value = b'{"sha": "0123456789abcdef0123456789abcdef01234567", "siblings": []}'
-                mock_urlopen.return_value = mock_response
+        metadata = json.dumps({"sha": "a" * 40, "siblings": []}).encode()
+        with (
+            tempfile.TemporaryDirectory() as temp_dir,
+            mock.patch("urllib.request.urlopen", return_value=io.BytesIO(metadata)),
+            self.assertRaisesRegex(RuntimeError, "abgebrochen"),
+        ):
+            download_parakeet_model(Path(temp_dir), cancel_event=cancel_event)
 
-                with self.assertRaisesRegex(RuntimeError, "abgebrochen"):
-                    download_parakeet_model(Path(temp_dir), cancel_event=cancel_event)
+    def test_force_downloads_even_if_existing_file_is_valid(self) -> None:
+        name = "tokens.txt"
+        content = b"test tokens"
+        with tempfile.TemporaryDirectory() as temp_dir:
+            directory = Path(temp_dir)
+            target = directory / name
+            target.write_bytes(content)
+            metadata = json.dumps(
+                {
+                    "sha": "a" * 40,
+                    "siblings": [
+                        {
+                            "rfilename": name,
+                            "size": len(content),
+                            "lfs": {"sha256": sha256_file(target)},
+                        }
+                    ],
+                }
+            ).encode()
+            with mock.patch(
+                "urllib.request.urlopen",
+                side_effect=[io.BytesIO(metadata), io.BytesIO(content)],
+            ) as open_url:
+                download_parakeet_model(directory, files=(name,), force=True)
+            self.assertEqual(open_url.call_count, 2)
+            self.assertEqual(target.read_bytes(), content)
 
 
 if __name__ == "__main__":

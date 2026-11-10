@@ -26,11 +26,9 @@ Optional vor dem Start unter Laufzeit → Laufzeittyp ändern eine GPU auswähle
 
 ## Optional: Parakeet auf der CPU
 
-INSTALL_PARAKEET aktivieren, um sherpa-onnx und NumPy mitzuinstallieren. Das Modell wird
-nicht automatisch geladen: einen vollständigen sherpa-onnx-Parakeet-Modellordner unter
-/content oder im eingebundenen Drive bereitstellen und in der Oberfläche auswählen.
-NVIDIA v3 unterstützt 25 europäische Sprachen; das primeline-Profil ist für Deutsch gedacht.
-Bei Parakeet die Quellsprache ausdrücklich wählen. Whisper bleibt die Voreinstellung.
+Whisper ist voreingestellt. Für Parakeet in der Oberfläche das Profil **multilingual-v3**
+wählen und auf **Parakeet v3 herunterladen** klicken. Danach die Sprache deines Videos
+auswählen. Für das Profil **german-primeline** brauchst du einen passenden Modellordner.
 
 ## Optional: benannter Cloudflare Tunnel
 

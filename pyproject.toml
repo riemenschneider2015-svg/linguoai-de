@@ -67,7 +67,6 @@ dev = [
 
 [project.scripts]
 linguoai = "linguoai.cli:entrypoint"
-linguoai-gui = "linguoai.cli:gui_entrypoint"
 linguoai-colab = "linguoai.colab_ui:entrypoint"
 linguoai-web = "linguoai.web_api:entrypoint"
 linguoai-worker = "linguoai.web_worker:entrypoint"

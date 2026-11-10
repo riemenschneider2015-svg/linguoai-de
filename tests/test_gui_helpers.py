@@ -43,10 +43,11 @@ class GuiHelperTests(unittest.TestCase):
 
     def test_check_environment_with_parakeet_does_not_raise_unbound_local(self) -> None:
         import types
+
         from linguoai.gui import ASR_ENGINE_DISPLAY, LinguoAIApp
 
         status_value = []
-        parakeet_key = [k for k, v in ASR_ENGINE_DISPLAY.items() if v == "parakeet"][0]
+        parakeet_key = next(k for k, v in ASR_ENGINE_DISPLAY.items() if v == "parakeet")
         fake_app = types.SimpleNamespace(
             environment_label=types.SimpleNamespace(configure=lambda **kw: None),
             environment_status=types.SimpleNamespace(set=lambda val: status_value.append(val)),
