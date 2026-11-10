@@ -1,7 +1,9 @@
+import importlib.util
 import threading
 import unittest
 from unittest import mock
 
+from linguoai.cache import LRUCache
 from linguoai.config import AppConfig
 from linguoai.domain import Segment
 from linguoai.errors import CancelledError, TranslationError
@@ -9,6 +11,7 @@ from linguoai.translation import (
     GOOGLE_TARGET_LANGUAGE_ALIASES,
     DeepTranslatorAdapter,
     GeminiStructuredClient,
+    GoogleRateLimitError,
     TranslationManager,
 )
 
@@ -86,6 +89,106 @@ class TranslationTests(unittest.TestCase):
         self.assertEqual(result[0].text, "DE: Hello")
         self.assertEqual(primary.calls, 1)
         self.assertEqual(fallback.calls, 1)
+
+    def test_google_rate_limit_preserves_progress_for_next_manager(self) -> None:
+        segments = [
+            Segment(0.25, 1.5, "Hello"),
+            Segment(2.0, 3.25, "Good morning"),
+            Segment(4.5, 6.0, "See you"),
+        ]
+        cache = LRUCache(max_size=10)
+        config = AppConfig(request_retries=4, request_retry_base_seconds=0)
+        google = DeepTranslatorAdapter("google")
+        first_manager = TranslationManager(config, adapters={"google": google}, cache=cache)
+        rate_limit = GoogleRateLimitError()
+        with (
+            mock.patch.object(
+                google, "translate_batch", side_effect=[["Hallo"], rate_limit]
+            ) as first_request,
+            self.assertRaises(TranslationError) as caught,
+        ):
+            first_manager.translate_segments(
+                segments, source_language="en", cancel_event=threading.Event()
+            )
+        self.assertEqual(
+            [call.args[0] for call in first_request.call_args_list],
+            [["Hello"], ["Good morning"]],
+        )
+        self.assertEqual(len(cache), 1)
+        self.assertIn("429", str(caught.exception))
+        self.assertIn("NLLB", str(caught.exception))
+        self.assertFalse(google.is_retryable(rate_limit))
+
+        resumed_google = DeepTranslatorAdapter("google")
+        resumed_manager = TranslationManager(
+            config, adapters={"google": resumed_google}, cache=cache
+        )
+        with mock.patch.object(
+            resumed_google, "translate_batch", side_effect=[["Guten Morgen"], ["Bis bald"]]
+        ) as resumed_request:
+            result = resumed_manager.translate_segments(
+                segments, source_language="en", cancel_event=threading.Event()
+            )
+        self.assertEqual(
+            [call.args[0] for call in resumed_request.call_args_list],
+            [["Good morning"], ["See you"]],
+        )
+        self.assertEqual(
+            result,
+            [
+                Segment(0.25, 1.5, "Hallo", original_text="Hello"),
+                Segment(2.0, 3.25, "Guten Morgen", original_text="Good morning"),
+                Segment(4.5, 6.0, "Bis bald", original_text="See you"),
+            ],
+        )
+
+    def test_google_rate_limit_fallback_only_translates_unfinished_segments(self) -> None:
+        segments = [
+            Segment(0.0, 1.0, "Hello"),
+            Segment(1.5, 2.5, "Good morning"),
+            Segment(3.0, 4.0, "See you"),
+        ]
+        google = DeepTranslatorAdapter("google")
+        fallback = FakeAdapter("gemini", prefix="Fallback: ")
+        manager = TranslationManager(
+            AppConfig(
+                fallback_services=("gemini",),
+                gemini_api_key="test-key",
+                request_retries=4,
+                request_retry_base_seconds=0,
+            ),
+            adapters={"google": google, "gemini": fallback},
+        )
+        with (
+            mock.patch.object(
+                google,
+                "translate_batch",
+                side_effect=[
+                    ["Hallo"],
+                    GoogleRateLimitError(),
+                ],
+            ) as google_request,
+            mock.patch.object(
+                fallback, "translate_batch", wraps=fallback.translate_batch
+            ) as fallback_request,
+        ):
+            result = manager.translate_segments(
+                segments, source_language="en", cancel_event=threading.Event()
+            )
+        self.assertEqual(
+            [call.args[0] for call in google_request.call_args_list],
+            [["Hello"], ["Good morning"]],
+        )
+        self.assertEqual(fallback_request.call_count, 1)
+        self.assertEqual(fallback_request.call_args.args[0], ["Good morning", "See you"])
+        self.assertEqual(
+            result,
+            [
+                Segment(0.0, 1.0, "Hallo", original_text="Hello"),
+                Segment(1.5, 2.5, "Fallback: Good morning", original_text="Good morning"),
+                Segment(3.0, 4.0, "Fallback: See you", original_text="See you"),
+            ],
+        )
 
     def test_provider_errors_redact_api_keys(self) -> None:
         secret = "very-secret-key"
@@ -211,6 +314,43 @@ class TranslationTests(unittest.TestCase):
             )
         self.assertEqual(primary.calls, 1)
         self.assertEqual(fallback.calls, 0)
+
+
+@unittest.skipUnless(importlib.util.find_spec("deep_translator"), "deep-translator unavailable")
+class GoogleTransportTests(unittest.TestCase):
+    def test_paces_requests_and_honors_rate_limit_cooldown(self) -> None:
+        from deep_translator import google
+
+        ok = mock.Mock(status_code=200, text='<div class="t0">Hallo</div>')
+        limited = mock.Mock(status_code=429, headers={"Retry-After": "120"})
+        requests = mock.Mock()
+        requests.get.side_effect = [ok, limited]
+        cancel = mock.Mock(spec=threading.Event)
+        cancel.is_set.return_value = False
+        cancel.wait.return_value = False
+        adapter = DeepTranslatorAdapter("google")
+
+        with (
+            mock.patch.object(google, "requests", requests),
+            mock.patch("linguoai.translation.time.monotonic", return_value=100.0),
+            mock.patch("linguoai.translation._google_next_request", 0.0),
+            mock.patch("linguoai.translation._google_pause_until", 0.0),
+        ):
+            kwargs = {"source_language": "en", "target_language": "de", "cancel_event": cancel}
+            self.assertEqual(adapter.translate_batch(["Hello"], **kwargs), ["Hallo"])
+            with self.assertRaises(GoogleRateLimitError):
+                adapter.translate_batch(["Second"], **kwargs)
+            with (
+                mock.patch("linguoai.translation.time.monotonic", return_value=160.0),
+                self.assertRaises(GoogleRateLimitError),
+            ):
+                adapter.translate_batch(["Second"], **kwargs)
+
+            self.assertEqual(requests.get.call_count, 2)
+            self.assertIs(google.requests, requests)
+
+        self.assertEqual(cancel.wait.call_args_list, [mock.call(0.0), mock.call(1.0)])
+        limited.close.assert_called_once()
 
 
 if __name__ == "__main__":

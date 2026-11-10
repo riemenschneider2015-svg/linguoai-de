@@ -47,6 +47,7 @@ from .transcription import create_transcriber
 from .translation import (
     GeminiTimingOptimizer,
     GeminiTranscriptOptimizer,
+    TranslationCache,
     TranslationManager,
 )
 
@@ -62,6 +63,7 @@ class VideoDubbingPipeline:
         media: Any | None = None,
         transcriber: Any | None = None,
         translator: Any | None = None,
+        translation_cache: TranslationCache | None = None,
         optimizer: Any | None = None,
         timing_optimizer: Any | None = None,
         synthesizer: Any | None = None,
@@ -76,7 +78,9 @@ class VideoDubbingPipeline:
 
         self.media = media or MediaTools(logger=self._log)
         self.transcriber = transcriber or create_transcriber(self.config, logger=self._log)
-        self.translator = translator or TranslationManager(self.config, logger=self._log)
+        self.translator = translator or TranslationManager(
+            self.config, logger=self._log, cache=translation_cache
+        )
         self.optimizer = optimizer
         if self.config.optimize_transcript and self.optimizer is None:
             self.optimizer = GeminiTranscriptOptimizer(self.config, logger=self._log)

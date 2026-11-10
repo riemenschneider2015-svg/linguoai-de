@@ -5,10 +5,12 @@ from __future__ import annotations
 import hashlib
 import inspect
 import json
+import math
 import os
 import threading
 import time
 from collections.abc import Callable, Sequence
+from email.utils import parsedate_to_datetime
 from functools import partial
 from types import SimpleNamespace
 from typing import Any, ClassVar, Protocol
@@ -78,6 +80,34 @@ GOOGLE_TARGET_LANGUAGE_ALIASES = {
 }
 
 _DEEP_TRANSLATOR_REQUEST_LOCK = threading.RLock()
+_GOOGLE_REQUEST_PAUSE = 1.0
+_GOOGLE_RATE_LIMIT_PAUSE = 30.0
+_google_next_request = 0.0
+_google_pause_until = 0.0
+
+TranslationCache = LRUCache[tuple[str, str, str, str, str], str]
+
+
+class GoogleRateLimitError(TranslationError):
+    def __init__(self) -> None:
+        super().__init__(
+            "Google Translate hat das Anfragelimit erreicht (429). "
+            "Warte und starte den Auftrag erneut oder wähle unter Übersetzungsart "
+            "NLLB lokal bzw. DeepL API mit Schlüssel."
+        )
+
+
+def _google_retry_after(value: str) -> float:
+    try:
+        seconds = float(value)
+    except ValueError:
+        try:
+            seconds = parsedate_to_datetime(value).timestamp() - time.time()
+        except (ValueError, TypeError, OverflowError, OSError):
+            return _GOOGLE_RATE_LIMIT_PAUSE
+    return max(_GOOGLE_RATE_LIMIT_PAUSE, seconds) if math.isfinite(seconds) else (
+        _GOOGLE_RATE_LIMIT_PAUSE
+    )
 
 
 class TranslationAdapter(Protocol):
@@ -145,6 +175,7 @@ class DeepTranslatorAdapter:
                 texts,
                 source_language=source_language,
                 target_language=target_language,
+                cancel_event=cancel_event,
             )
         elif self.name == "deepl":
             target = DEEPL_TARGET_LANGUAGE_MAP.get(target_language)
@@ -197,7 +228,6 @@ class DeepTranslatorAdapter:
             "ReadTimeout",
             "RequestError",
             "ServerException",
-            "TooManyRequests",
             "Timeout",
         }
 
@@ -207,6 +237,7 @@ class DeepTranslatorAdapter:
         *,
         source_language: str | None,
         target_language: str,
+        cancel_event: threading.Event | None = None,
     ) -> list[str]:
         try:
             from deep_translator import GoogleTranslator
@@ -228,15 +259,33 @@ class DeepTranslatorAdapter:
                     f"Google Translate unterstützt den Zielsprachcode {target_language!r} nicht."
                 ) from exc
 
-        original_requests = google_module.requests
+        cancel = cancel_event if cancel_event is not None else threading.Event()
 
         def get_with_timeout(*args: Any, **kwargs: Any) -> Any:
+            global _google_next_request, _google_pause_until
+            check_cancelled(cancel)
+            now = time.monotonic()
+            if now < _google_pause_until:
+                raise GoogleRateLimitError()
+            if cancel.wait(max(0.0, _google_next_request - now)):
+                check_cancelled(cancel)
             kwargs.setdefault("timeout", self.request_timeout)
-            return original_requests.get(*args, **kwargs)
+            try:
+                response = original_requests.get(*args, **kwargs)
+            finally:
+                _google_next_request = time.monotonic() + _GOOGLE_REQUEST_PAUSE
+            if response.status_code == 429:
+                _google_pause_until = time.monotonic() + _google_retry_after(
+                    response.headers.get("Retry-After", "")
+                )
+                response.close()
+                raise GoogleRateLimitError()
+            return response
 
         # deep-translator bietet selbst keinen Timeout. Nur dessen Modulbindung wird
         # während dieses seriellen Aufrufs ersetzt; das globale requests-Modul bleibt intakt.
         with _DEEP_TRANSLATOR_REQUEST_LOCK:
+            original_requests = google_module.requests
             google_module.requests = SimpleNamespace(get=get_with_timeout)
             try:
                 translated = translator.translate_batch(list(texts))
@@ -496,11 +545,11 @@ class TranslationManager:
         *,
         logger: Callable[[str], None] | None = None,
         adapters: dict[str, TranslationAdapter] | None = None,
-        cache: LRUCache[tuple[str, str, str, str, str], str] | None = None,
+        cache: TranslationCache | None = None,
     ) -> None:
         self.config = config
         self.logger = logger or (lambda _message: None)
-        self.cache = cache if cache is not None else LRUCache(max_size=2_000)
+        self.cache = cache if cache is not None else TranslationCache()
         self.services = (config.translation_service, *config.fallback_services)
         self.adapters = adapters or {
             service: self._create_adapter(service) for service in self.services
@@ -536,34 +585,31 @@ class TranslationManager:
                 if not remaining:
                     break
                 adapter = self.adapters[service]
+                context_value = (
+                    full_context
+                    if self.config.context_aware_translation
+                    and self._adapter_accepts_context(adapter)
+                    else None
+                )
+                context_key = (
+                    hashlib.sha256(context_value.encode("utf-8")).hexdigest()[:16]
+                    if context_value
+                    else ""
+                )
+                key_prefix = (service, source_language or "auto", self.config.target_language)
+                cache_keys = {
+                    position: (*key_prefix, context_key, texts[position])
+                    for position in remaining
+                }
                 uncached: list[int] = []
                 for position in remaining:
-                    context_value = (
-                        full_context
-                        if self.config.context_aware_translation
-                        and self._adapter_accepts_context(adapter)
-                        else None
-                    )
-                    context_key = (
-                        hashlib.sha256(context_value.encode("utf-8")).hexdigest()[:16]
-                        if context_value
-                        else ""
-                    )
-                    cache_key = (
-                        service,
-                        source_language or "auto",
-                        self.config.target_language,
-                        context_key,
-                        texts[position],
-                    )
-                    cached = self.cache.get(cache_key)
+                    cached = self.cache.get(cache_keys[position])
                     if cached is None:
                         uncached.append(position)
                     else:
                         translated_texts[position] = cached
 
                 if uncached:
-                    protected = [protect_entities(texts[position]) for position in uncached]
                     request_kwargs: dict[str, Any] = {
                         "source_language": source_language,
                         "target_language": self.config.target_language,
@@ -571,47 +617,48 @@ class TranslationManager:
                     }
                     if context_value:
                         request_kwargs["context"] = context_value
-                    request = partial(
-                        adapter.translate_batch,
-                        [item.text for item in protected],
-                        **request_kwargs,
+                    # The keyless Google adapter issues one HTTP request per segment.
+                    groups = ([position] for position in uncached) if service == "google" else (
+                        uncached,
                     )
                     try:
-                        raw = retry_call(
-                            request,
-                            attempts=self.config.request_retries,
-                            cancel_event=cancel_event,
-                            on_retry=lambda attempt, exc, name=service: self.logger(
-                                f"{name}: Retry {attempt} nach Fehler: {self._safe_error(exc)}"
-                            ),
-                            should_retry=getattr(adapter, "is_retryable", lambda _exc: True),
-                            base_delay_seconds=self.config.request_retry_base_seconds,
-                            max_delay_seconds=self.config.request_retry_max_seconds,
-                        )
-                        check_cancelled(cancel_event)
-                        if len(raw) != len(uncached):
-                            raise TranslationError(
-                                f"{service} lieferte {len(raw)} statt {len(uncached)} Segmente."
+                        for group in groups:
+                            if service == "google":
+                                position = group[0]
+                                cached = self.cache.get(cache_keys[position])
+                                if cached is not None:
+                                    translated_texts[position] = cached
+                                    continue
+                            protected = [protect_entities(texts[position]) for position in group]
+                            request = partial(
+                                adapter.translate_batch,
+                                [item.text for item in protected],
+                                **request_kwargs,
                             )
-                        for position, output, protected_item in zip(
-                            uncached, raw, protected, strict=True
-                        ):
-                            restored = restore_entities(output, protected_item.entities)
-                            if not restored:
-                                raise TranslationError(
-                                    f"{service} lieferte ein leeres Segment {position + 1}."
-                                )
-                            translated_texts[position] = restored
-                            self.cache.set(
-                                (
-                                    service,
-                                    source_language or "auto",
-                                    self.config.target_language,
-                                    context_key,
-                                    texts[position],
+                            raw = retry_call(
+                                request,
+                                attempts=self.config.request_retries,
+                                cancel_event=cancel_event,
+                                on_retry=lambda attempt, exc, name=service: self.logger(
+                                    f"{name}: Retry {attempt} nach Fehler: {self._safe_error(exc)}"
                                 ),
-                                restored,
+                                should_retry=getattr(adapter, "is_retryable", lambda _exc: True),
+                                base_delay_seconds=self.config.request_retry_base_seconds,
+                                max_delay_seconds=self.config.request_retry_max_seconds,
                             )
+                            check_cancelled(cancel_event)
+                            if len(raw) != len(group):
+                                raise TranslationError(
+                                    f"{service} lieferte {len(raw)} statt {len(group)} Segmente."
+                                )
+                            for position, output, item in zip(group, raw, protected, strict=True):
+                                restored = restore_entities(output, item.entities)
+                                if not restored:
+                                    raise TranslationError(
+                                        f"{service} lieferte ein leeres Segment {position + 1}."
+                                    )
+                                translated_texts[position] = restored
+                                self.cache.set(cache_keys[position], restored)
                     except CancelledError:
                         raise
                     except Exception as exc:

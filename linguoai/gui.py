@@ -31,7 +31,7 @@ from .model_downloader import default_parakeet_directory, is_parakeet_model_read
 from .pipeline import VideoDubbingPipeline
 from .runtime import redact_secrets
 from .speech import DEFAULT_EDGE_VOICES
-from .translation import DEEPL_TARGET_LANGUAGE_MAP
+from .translation import DEEPL_TARGET_LANGUAGE_MAP, TranslationCache
 
 SERVICE_DISPLAY = {
     "NLLB lokal · CPU/GPU": "nllb",
@@ -223,6 +223,7 @@ class LinguoAIApp:
 
         self._events: queue.SimpleQueue[tuple[str, object]] = queue.SimpleQueue()
         self._pipeline: VideoDubbingPipeline | None = None
+        self._google_translation_cache = TranslationCache()
         self._pipeline_lock = threading.Lock()
         self._worker: threading.Thread | None = None
         self._cancel_requested = threading.Event()
@@ -1645,6 +1646,11 @@ class LinguoAIApp:
                     config,
                     event_sink=lambda update: self._events.put(("progress", update)),
                     cancel_event=self._cancel_requested,
+                    translation_cache=(
+                        self._google_translation_cache
+                        if config.translation_service == "google"
+                        else None
+                    ),
                 )
                 with self._pipeline_lock:
                     self._pipeline = pipeline
