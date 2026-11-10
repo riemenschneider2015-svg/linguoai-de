@@ -41,6 +41,27 @@ class GuiHelperTests(unittest.TestCase):
         self.assertIsNotNone(default_parakeet_directory())
         self.assertFalse(is_parakeet_model_ready(Path("/nonexistent/path/for/test")))
 
+    def test_check_environment_with_parakeet_does_not_raise_unbound_local(self) -> None:
+        import types
+        from linguoai.gui import ASR_ENGINE_DISPLAY, LinguoAIApp
+
+        status_value = []
+        parakeet_key = [k for k, v in ASR_ENGINE_DISPLAY.items() if v == "parakeet"][0]
+        fake_app = types.SimpleNamespace(
+            environment_label=types.SimpleNamespace(configure=lambda **kw: None),
+            environment_status=types.SimpleNamespace(set=lambda val: status_value.append(val)),
+            asr_engine=types.SimpleNamespace(get=lambda: parakeet_key),
+            parakeet_model_directory=types.SimpleNamespace(get=lambda: ""),
+            _missing_modules=lambda mods: [],
+            service=types.SimpleNamespace(get=lambda: "google"),
+            optimize=types.SimpleNamespace(get=lambda: False),
+            _tts_engine_code=lambda: "edge",
+            compute_type=types.SimpleNamespace(get=lambda: "Automatisch"),
+            device=types.SimpleNamespace(get=lambda: "Automatisch (empfohlen)"),
+        )
+        LinguoAIApp._check_environment(fake_app)
+        self.assertTrue(any("Parakeet-Modell herunterladen" in s for s in status_value))
+
 
 if __name__ == "__main__":
     unittest.main()

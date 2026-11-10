@@ -2096,6 +2096,7 @@ class LinguoAIApp:
         if not hasattr(self, "environment_label"):
             return
         missing: list[str] = []
+        problems: list[str] = []
         if not shutil.which("ffmpeg"):
             missing.append("FFmpeg")
         if not shutil.which("ffprobe"):
@@ -2122,7 +2123,6 @@ class LinguoAIApp:
         if service_code == "gemini" or self.optimize.get():
             missing.extend(self._missing_modules(("google.genai",)))
 
-        problems: list[str] = []
         tts_engine = self._tts_engine_code()
         if tts_engine == "edge":
             missing.extend(self._missing_modules(("edge_tts",)))
