@@ -103,7 +103,7 @@ class TranslationTests(unittest.TestCase):
         config = AppConfig(request_retries=4, request_retry_base_seconds=0)
         google = DeepTranslatorAdapter("google")
         first_manager = TranslationManager(config, adapters={"google": google}, cache=cache)
-        rate_limit = GoogleRateLimitError()
+        rate_limit = GoogleRateLimitError(retry_after_seconds=600)
         with (
             mock.patch("linguoai.translation._GOOGLE_BATCH_MAX_ITEMS", 2),
             mock.patch.object(
@@ -170,7 +170,7 @@ class TranslationTests(unittest.TestCase):
                 "translate_batch",
                 side_effect=[
                     ["Hallo", "Guten Morgen"],
-                    GoogleRateLimitError(),
+                    GoogleRateLimitError(retry_after_seconds=600),
                 ],
             ) as google_request,
             mock.patch.object(
@@ -211,7 +211,7 @@ class TranslationTests(unittest.TestCase):
                 side_effect=[
                     GoogleBatchFormatError("missing marker"),
                     ["Hallo"],
-                    GoogleRateLimitError(),
+                    GoogleRateLimitError(retry_after_seconds=600),
                 ],
             ) as request,
             self.assertRaises(TranslationError),
@@ -240,19 +240,40 @@ class TranslationTests(unittest.TestCase):
             AppConfig(request_retries=4, request_retry_base_seconds=0),
             adapters={"google": google},
         )
+        cancel = mock.Mock(spec=threading.Event)
+        cancel.is_set.return_value = False
+        cancel.wait.return_value = False
         with (
             mock.patch.object(
-                google, "translate_batch", side_effect=GoogleRateLimitError()
+                google, "translate_batch", side_effect=GoogleRateLimitError(30)
             ) as call,
-            self.assertRaises(TranslationError),
+            self.assertRaisesRegex(TranslationError, "Segmente 1, 2.*429"),
         ):
             manager.translate_segments(
                 [Segment(0, 1, "Hello"), Segment(1, 2, "Bye")],
                 source_language="en",
-                cancel_event=threading.Event(),
+                cancel_event=cancel,
             )
-        self.assertEqual(call.call_count, 1)
-        self.assertEqual(call.call_args.args[0], ["Hello", "Bye"])
+        self.assertEqual([entry.args[0] for entry in call.call_args_list], [["Hello", "Bye"]] * 4)
+        self.assertEqual(cancel.wait.call_args_list, [mock.call(30)] * 3)
+
+    def test_google_wait_can_be_cancelled(self) -> None:
+        google = DeepTranslatorAdapter("google")
+        manager = TranslationManager(AppConfig(), adapters={"google": google})
+        cancel = mock.Mock(spec=threading.Event)
+        cancel.is_set.return_value = False
+        cancel.wait.return_value = True
+        with (
+            mock.patch.object(
+                google, "translate_batch", side_effect=GoogleRateLimitError(45)
+            ) as request,
+            self.assertRaises(CancelledError),
+        ):
+            manager.translate_segments(
+                [Segment(0, 1, "Hello")], source_language="en", cancel_event=cancel
+            )
+        request.assert_called_once()
+        cancel.wait.assert_called_once_with(45)
 
     def test_provider_errors_redact_api_keys(self) -> None:
         secret = "very-secret-key"
@@ -466,11 +487,9 @@ class GoogleTransportTests(unittest.TestCase):
                 )
             if case == "extra":
                 return payload + " trailing text"
-            if case == "unknown":
-                return payload.replace("_0001]]", "_9999]]")
-            return payload.replace("Hello", "")
+            return payload.replace("_0001]]", "_9999]]")
 
-        for case in ("missing", "duplicate", "reordered", "extra", "unknown", "empty"):
+        for case in ("missing", "duplicate", "reordered", "extra", "unknown"):
             with self.subTest(case=case):
                 pairs = {"Hello": "Hallo", "Bye": "Tschüss", "Yes": "Ja", "No": "Nein"}
                 payloads = []
@@ -500,6 +519,52 @@ class GoogleTransportTests(unittest.TestCase):
                 self.assertEqual(payloads[1:], list(pairs))
                 self.assertEqual([item.text for item in result], list(pairs.values()))
 
+    def test_google_recovers_only_empty_cue_after_retry_after(self) -> None:
+        from deep_translator import google
+
+        now = 100.0
+        payloads = []
+        limited = mock.Mock(status_code=429, headers={"Retry-After": "45"})
+
+        def translate(*_args, **kwargs):
+            payload = kwargs["params"]["q"]
+            payloads.append((payload, now))
+            if len(payloads) == 1:
+                return self._response(payload.replace("Hello", "Hallo").replace("Bye", ""))
+            if len(payloads) == 2:
+                return limited
+            return self._response("Tschüss")
+
+        def wait(seconds):
+            nonlocal now
+            now += seconds
+            return False
+
+        requests = mock.Mock()
+        requests.get.side_effect = translate
+        cancel = mock.Mock(spec=threading.Event)
+        cancel.is_set.return_value = False
+        cancel.wait.side_effect = wait
+        logs = []
+        manager = TranslationManager(
+            AppConfig(target_language="de", request_retries=2), logger=logs.append
+        )
+        with (
+            mock.patch.object(google, "requests", requests),
+            mock.patch("linguoai.translation.time.monotonic", side_effect=lambda: now),
+            mock.patch("linguoai.translation._google_next_request", 0.0),
+            mock.patch("linguoai.translation._google_pause_until", 0.0),
+        ):
+            result = manager.translate_segments(
+                [Segment(0, 1, "Hello"), Segment(1, 2, "Bye")],
+                source_language="en",
+                cancel_event=cancel,
+            )
+        self.assertEqual(payloads[1:], [("Bye", 101.0), ("Bye", 146.0)])
+        self.assertEqual([item.text for item in result], ["Hallo", "Tschüss"])
+        self.assertTrue(any("45 Sekunden" in message for message in logs))
+        limited.close.assert_called_once()
+
     def test_paces_requests_and_honors_rate_limit_cooldown(self) -> None:
         from deep_translator import google
 
@@ -520,16 +585,18 @@ class GoogleTransportTests(unittest.TestCase):
         ):
             kwargs = {"source_language": "en", "target_language": "de", "cancel_event": cancel}
             self.assertEqual(adapter.translate_batch(["Hello"], **kwargs), ["Hallo"])
-            with self.assertRaises(GoogleRateLimitError):
+            with self.assertRaises(GoogleRateLimitError) as first:
                 adapter.translate_batch(["Second"], **kwargs)
             with (
                 mock.patch("linguoai.translation.time.monotonic", return_value=160.0),
-                self.assertRaises(GoogleRateLimitError),
+                self.assertRaises(GoogleRateLimitError) as still_waiting,
             ):
                 adapter.translate_batch(["Second"], **kwargs)
 
             self.assertEqual(requests.get.call_count, 2)
             self.assertIs(google.requests, requests)
+            self.assertEqual(first.exception.retry_after_seconds, 120)
+            self.assertEqual(still_waiting.exception.retry_after_seconds, 60)
 
         self.assertEqual(cancel.wait.call_args_list, [mock.call(0.0), mock.call(1.0)])
         limited.close.assert_called_once()

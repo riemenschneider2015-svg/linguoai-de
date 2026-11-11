@@ -87,6 +87,7 @@ GOOGLE_TARGET_LANGUAGE_ALIASES = {
 _DEEP_TRANSLATOR_REQUEST_LOCK = threading.RLock()
 _GOOGLE_REQUEST_PAUSE = 1.0
 _GOOGLE_RATE_LIMIT_PAUSE = 30.0
+_GOOGLE_MAX_AUTOMATIC_WAIT = 120.0
 _GOOGLE_BATCH_MAX_ITEMS = 12
 _GOOGLE_BATCH_MAX_CHARACTERS = 4500
 _GOOGLE_BATCH_MAX_ENCODED_BYTES = 6000
@@ -98,7 +99,8 @@ TranslationCache = LRUCache[tuple[str, str, str, str, str], str]
 
 
 class GoogleRateLimitError(TranslationError):
-    def __init__(self) -> None:
+    def __init__(self, retry_after_seconds: float = _GOOGLE_RATE_LIMIT_PAUSE) -> None:
+        self.retry_after_seconds = retry_after_seconds
         super().__init__(
             "Google Translate ohne Schlüssel hat das Anfragelimit erreicht (429). "
             "Warte und starte den Auftrag erneut oder wähle unter Übersetzungsart "
@@ -152,8 +154,8 @@ def _google_batch_result(translated: str, prefix: str, count: int) -> list[str]:
     ):
         raise GoogleBatchFormatError("Google hat die Segmentmarkierungen verändert.")
     texts = [translated[left.end() : right.start()].strip() for left, right in pairwise(markers)]
-    if any(not text or prefix in text for text in texts):
-        raise GoogleBatchFormatError("Google lieferte ein leeres oder ungültiges Segment.")
+    if any(prefix in text for text in texts):
+        raise GoogleBatchFormatError("Google lieferte ungültige Segmentmarkierungen.")
     return texts
 
 
@@ -275,6 +277,8 @@ class DeepTranslatorAdapter:
             self._deepl_client = None
 
     def is_retryable(self, error: BaseException) -> bool:
+        if self.name == "google" and isinstance(error, GoogleRateLimitError):
+            return error.retry_after_seconds <= _GOOGLE_MAX_AUTOMATIC_WAIT
         if self.name == "deepl":
             status = getattr(error, "http_status_code", None) or getattr(error, "status_code", None)
             try:
@@ -332,7 +336,7 @@ class DeepTranslatorAdapter:
             check_cancelled(cancel)
             now = time.monotonic()
             if now < _google_pause_until:
-                raise GoogleRateLimitError()
+                raise GoogleRateLimitError(_google_pause_until - now)
             if cancel.wait(max(0.0, _google_next_request - now)):
                 check_cancelled(cancel)
             kwargs.setdefault("timeout", self.request_timeout)
@@ -341,11 +345,10 @@ class DeepTranslatorAdapter:
             finally:
                 _google_next_request = time.monotonic() + _GOOGLE_REQUEST_PAUSE
             if response.status_code == 429:
-                _google_pause_until = time.monotonic() + _google_retry_after(
-                    response.headers.get("Retry-After", "")
-                )
+                wait_seconds = _google_retry_after(response.headers.get("Retry-After", ""))
+                _google_pause_until = time.monotonic() + wait_seconds
                 response.close()
-                raise GoogleRateLimitError()
+                raise GoogleRateLimitError(wait_seconds)
             return response
 
         # deep-translator bietet selbst keinen Timeout. Nur dessen Modulbindung wird
@@ -728,12 +731,16 @@ class TranslationManager:
                                     request,
                                     attempts=self.config.request_retries,
                                     cancel_event=cancel_event,
-                                    on_retry=lambda attempt, exc, name=service: self.logger(
-                                        f"{name}: Retry {attempt} nach Fehler: "
-                                        f"{self._safe_error(exc)}"
+                                    on_retry=lambda attempt, exc, name=service: self._log_retry(
+                                        name, attempt, exc
                                     ),
                                     should_retry=getattr(
                                         adapter, "is_retryable", lambda _exc: True
+                                    ),
+                                    retry_after=lambda exc: (
+                                        exc.retry_after_seconds
+                                        if isinstance(exc, GoogleRateLimitError)
+                                        else 0.0
                                     ),
                                     base_delay_seconds=self.config.request_retry_base_seconds,
                                     max_delay_seconds=self.config.request_retry_max_seconds,
@@ -751,14 +758,23 @@ class TranslationManager:
                                 raise TranslationError(
                                     f"{service} lieferte {len(raw)} statt {len(group)} Segmente."
                                 )
+                            google_block = service == "google" and len(group) > 1
+                            missing = []
                             for position, output, item in zip(group, raw, protected, strict=True):
-                                restored = restore_entities(output, item.entities)
-                                if not restored:
-                                    raise TranslationError(
-                                        f"{service} lieferte ein leeres Segment {position + 1}."
-                                    )
+                                try:
+                                    restored = restore_entities(output, item.entities)
+                                    if not restored:
+                                        raise TranslationError(
+                                            f"{service} lieferte ein leeres Segment {position + 1}."
+                                        )
+                                except TranslationError:
+                                    if not google_block:
+                                        raise
+                                    missing.append(position)
+                                    continue
                                 translated_texts[position] = restored
                                 self.cache.set(cache_keys[position], restored)
+                            groups.extendleft([position] for position in reversed(missing))
                     except CancelledError:
                         raise
                     except Exception as exc:
@@ -866,6 +882,16 @@ class TranslationManager:
             return f"{name}{status}: Provider-Anfrage fehlgeschlagen.{redacted}"
         rendered = rendered.replace("\r", " ").replace("\n", " ")
         return f"{name}: {rendered[:300]}"
+
+    def _log_retry(self, service: str, attempt: int, error: BaseException) -> None:
+        if isinstance(error, GoogleRateLimitError):
+            wait_seconds = math.ceil(error.retry_after_seconds)
+            self.logger(
+                f"Google Translate meldet zu viele Anfragen (429). "
+                f"Neuer Versuch für den offenen Block in mindestens {wait_seconds} Sekunden."
+            )
+            return
+        self.logger(f"{service}: Retry {attempt} nach Fehler: {self._safe_error(error)}")
 
 
 class GeminiTranscriptOptimizer:

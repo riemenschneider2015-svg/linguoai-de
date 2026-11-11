@@ -25,6 +25,7 @@ def retry_call(
     cancel_event: threading.Event,
     on_retry: Callable[[int, BaseException], None] | None = None,
     should_retry: Callable[[BaseException], bool] | None = None,
+    retry_after: Callable[[BaseException], float] | None = None,
     base_delay_seconds: float = 0.75,
     max_delay_seconds: float = 8.0,
 ) -> T:
@@ -50,6 +51,8 @@ def retry_call(
             delay = min(max_delay_seconds, base_delay_seconds * (2 ** (attempt - 1)))
             if delay > 0:
                 delay += random.uniform(0.0, min(0.5, delay * 0.1))
+            if retry_after:
+                delay = max(delay, retry_after(exc))
             if cancel_event.wait(delay):
                 raise CancelledError("Verarbeitung wurde abgebrochen.") from None
     assert last_error is not None
